@@ -1,0 +1,5 @@
+cache
+.vscode
+*.egg-info
+*.pyc
+ext/dexinfo
