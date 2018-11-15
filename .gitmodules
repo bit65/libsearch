@@ -1,3 +1,6 @@
 [submodule "ext/dexinfo"]
 	path = ext/dexinfo
 	url = https://github.com/bit65/dexinfo
+[submodule "restclient"]
+	path = restclient
+	url = https://github.com/dsternlicht/RESTool

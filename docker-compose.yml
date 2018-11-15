@@ -1,0 +1,71 @@
+version: '3'
+services:
+  db:
+    image: postgres:latest
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: always
+    environment:
+      POSTGRES_DB: postgress
+      POSTGRES_PASSWORD: postgress
+      POSTGRES_USER: postgress
+    ports:
+      - "5432:5432"
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.3
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      # - cluster.name=docker-cluster
+      # - bootstrap.memory_lock=true
+      # - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+  kibana:
+    image: docker.elastic.co/kibana/kibana:6.4.3
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200/
+    ports:
+      - 5601:5601
+    links:
+      - "elasticsearch:elasticsearch"
+    depends_on:
+      - elasticsearch
+  # search:
+  #   build: searcher
+  #   links:
+  #     - "db:db"
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     PGDATABASE: libsearch
+  #     PGPASSWORD: postgress
+  #     PGUSER: postgress
+  #     PGHOST: db
+  #   ports:
+  #     - "5000:5000"
+  prest:
+    build: prest
+    links:
+        - "db:db"
+    environment:
+      - PREST_DEBUG=true # remove comment for enable DEBUG mode (disable JWT)
+      - PREST_PG_HOST=db
+      - PREST_PG_USER=postgress
+      - PREST_PG_PASS=postgress
+      - PREST_PG_DATABASE=libsearch
+      - PREST_PG_PORT=5432
+      - PREST_JWT_DEFAULT=false # remove if need jwt
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+volumes:
+  db_data:
+  es_data:
