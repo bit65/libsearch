@@ -3,7 +3,8 @@
 
 from libsearch import apk_downloader
 from libsearch import extract_zip
+from libsearch import parse_so
 
-apk_downloader("auto_and_vehicles")
+parse_so("", "cache/lib/armeabi-v7a/libunity.so")
 
 # extract_zip("sample.apk")
