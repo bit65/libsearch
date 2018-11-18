@@ -41,29 +41,46 @@ def parse_dex(file_name):
     process_dex = subprocess.Popen(args, stdout=subprocess.PIPE,
                                     shell=False)
     process_grep = subprocess.Popen(args2, stdin=process_dex.stdout,
-                                  stdout=subprocess.PIPE, shell=False)
+                                stdout=subprocess.PIPE, shell=False)
     process_dex.stdout.close()
-    return process_grep.communicate()[0]
     
+    modules = (process_grep.communicate()[0]).splitlines()
+    return [
+        ("MODULES",modules)
+        ]
+
+
+def parse_file(zipfile, function, file_name):
+    try:
+        with NamedTemporaryFile(delete=True) as temp:
+            temp.write(zipfile.open(file_name).read())
+
+            for name, data_list in function(temp.name):
+                save_data(data_list, name, file_name)
+                
+            
+            # print function, file_name
+    except Exception as e:
+        print e
+        pass
+
+
+def extract_names(zipfile):
+    for name in zipfile.namelist():
+        if name.endswith("classes.dex"):
+            parse_file(zipfile, parse_dex, name)
+
 def extract_zip(zip_file):
     full_path = os.path.abspath("cache/"+zip_file)
     resp = urlopen(full_path)
     zipfile = ZipFile(StringIO(resp.read()))
+
+    extract_names(zipfile)
+    
+    os.exit(0)
+
     save_data(zipfile.namelist(), "ZIP_NAMES", zip_file)
 
-    try:
-        with NamedTemporaryFile(delete=True) as temp:
-            
-            temp.write(zipfile.open("classes.dex").read())
-
-            modules = parse_dex(temp.name).splitlines()
-            save_data(modules, "MODULES", zip_file)
-
-            # "./dexinfo %s | grep -oP ''" % temp.name
-
-        print buf_classes_dex
-    except:
-        pass
 
 
 dbname="libsearch"
