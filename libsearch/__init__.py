@@ -34,7 +34,27 @@ def apk_downloader(category):
                 print "Failed downloading %s" % name 
     
 
-def parse_dex(file_name):
+def parse_so(file_name, orig_name):
+
+    if orig_name.startswith("lib/"):
+        _, system, name =  orig_name.split('/')
+        
+        print "LIB", system, name
+    else: 
+        print "SO", orig_name
+
+    os._exit(0)
+
+def parse_json(file_name, orig_name):
+    print "json", orig_name
+    
+def parse_properties(file_name, orig_name):
+    print "properties", orig_name
+
+def parse_xml(file_name, orig_name):
+    print "xml", orig_name
+
+def parse_dex(file_name, orig_name):
     args = ['./ext/dexinfo/dexinfo', file_name, '-V']
     args2 = ['grep', '-oP', 'class_idx.*?L\K([^;\$]*)']
 
@@ -45,21 +65,23 @@ def parse_dex(file_name):
     process_dex.stdout.close()
     
     modules = (process_grep.communicate()[0]).splitlines()
-    return [
-        ("MODULES",modules)
-        ]
 
+    new_modules = [dict(data=m, metadata={}) for m in modules]
+
+    return [
+        ("MODULES",new_modules)
+        ]
 
 def parse_file(zipfile, function, file_name):
     try:
         with NamedTemporaryFile(delete=True) as temp:
             temp.write(zipfile.open(file_name).read())
 
-            for name, data_list in function(temp.name):
-                save_data(data_list, name, file_name)
+            ret_modules = function(temp.name, file_name)
+            if ret_modules != None:
+                for name, data_list in ret_modules:
+                    save_data(data_list, name, file_name)
                 
-            
-            # print function, file_name
     except Exception as e:
         print e
         pass
@@ -67,7 +89,20 @@ def parse_file(zipfile, function, file_name):
 
 def extract_names(zipfile):
     for name in zipfile.namelist():
-        if name.endswith("classes.dex"):
+        
+        if name.endswith(".so"):
+            parse_file(zipfile, parse_so, name)
+
+        if name.endswith(".xml"):
+            parse_file(zipfile, parse_xml, name)
+            
+        if name.endswith(".json"):
+            parse_file(zipfile, parse_json, name)
+        
+        if name.endswith(".properties"):
+            parse_file(zipfile, parse_properties, name)
+
+        if name.endswith(".dex"):
             parse_file(zipfile, parse_dex, name)
 
 def extract_zip(zip_file):
@@ -75,11 +110,12 @@ def extract_zip(zip_file):
     resp = urlopen(full_path)
     zipfile = ZipFile(StringIO(resp.read()))
 
-    extract_names(zipfile)
-    
-    os.exit(0)
+    # Get files from zip
+    new_items = [dict(data=i.filename, metadata={"crc":i.CRC}) for i in zipfile.infolist()]
+    save_data(new_items, "ZIP_NAMES", zip_file)
 
-    save_data(zipfile.namelist(), "ZIP_NAMES", zip_file)
+    # Process files
+    extract_names(zipfile)
 
 
 
@@ -101,7 +137,8 @@ class BaseModel(Model):
 
 class DataDump(BaseModel):
     data = CharField(1024)
-    dvector = TSVectorField()
+    # dvector = TSVectorField()
+    metadata = JSONField()
     dtype = CharField()
     asset = CharField()
     class Meta:
@@ -115,26 +152,18 @@ def init_db():
     psql_db.drop_tables([DataDump])
     psql_db.create_tables([DataDump])
 
-# conn = None
-# def init_db():
-#     global conn
 
-
-#     cs = "dbname=%s user=%s password=%s host=%s port=%s" % (dbname, dbuser, dbpassword, dbhost, dbport)
-
-#     conn = psycopg2.connect(cs)
-
-
-def save_data(data,type, asset):
-    if isinstance(data, list):
-        print "Saving %d %s " % (len(data), type)
-
-        with psql_db.atomic():
-            for d in set(data):
-                # print type, d
-                try:
-                    DataDump.create(data=d, dvector=fn.to_tsvector(fn.replace(d,'/',' ')), dtype=type, asset=asset)
-                except:
-                    pass
-
+def save_data(data, type, asset):
     
+    if isinstance(data, list):
+        with psql_db.atomic():
+            for d in data:
+                print d
+            # try:
+            #     DataDump.create(
+            #         data=d["data"], 
+            #         metadata=d["metadata"],
+            #         dtype=type,
+            #         asset=asset)
+            # except Exception as e:
+            #     pass
