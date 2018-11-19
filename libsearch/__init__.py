@@ -7,10 +7,30 @@ from peewee import *
 from playhouse.postgres_ext import *
 from lxml import html
 import requests
+import json
 
 import os
 import re
 
+__DEBUG__ONLY__ = True
+
+class SaveData():
+    def __init__(self, data, metadata={}):
+        self.data = data
+        self.metadata = metadata
+
+    def __str__(self):
+        return "SaveData( " + self.data + "," + json.dumps(self.metadata) +" )"
+
+    def __hash__(self):
+        return hash((self.data,  json.dumps(self.metadata)))
+
+    def data(self):
+        self.data
+
+    def metadata(self):
+        self.metadata
+        
 def apk_downloader(category):
     for page in range(1,100):
         page = requests.get('https://apkpure.com/%s?sort=new&page=%d' % (category, page))
@@ -66,7 +86,7 @@ def parse_dex(file_name, orig_name):
     
     modules = (process_grep.communicate()[0]).splitlines()
 
-    new_modules = [dict(data=m, metadata={}) for m in modules]
+    new_modules = [SaveData(data=m) for m in modules]
 
     return [
         ("MODULES",new_modules)
@@ -111,7 +131,7 @@ def extract_zip(zip_file):
     zipfile = ZipFile(StringIO(resp.read()))
 
     # Get files from zip
-    new_items = [dict(data=i.filename, metadata={"crc":i.CRC}) for i in zipfile.infolist()]
+    new_items = [SaveData(data=i.filename, metadata={"crc":i.CRC}) for i in zipfile.infolist()]
     save_data(new_items, "ZIP_NAMES", zip_file)
 
     # Process files
@@ -156,14 +176,22 @@ def init_db():
 def save_data(data, type, asset):
     
     if isinstance(data, list):
+        
+        uniq_data = {}
+        for d in data:
+            uniq_data[d.__hash__()] = d
+
         with psql_db.atomic():
-            for d in data:
-                print d
-            # try:
-            #     DataDump.create(
-            #         data=d["data"], 
-            #         metadata=d["metadata"],
-            #         dtype=type,
-            #         asset=asset)
-            # except Exception as e:
-            #     pass
+            for _,d in uniq_data.items():
+                
+                try:
+                    if __DEBUG__ONLY__:
+                        print d, type, asset
+                    else:
+                        DataDump.create(
+                            data=d.data, 
+                            metadata=d.metadata,
+                            dtype=type,
+                            asset=asset)
+                except Exception as e:
+                    pass
