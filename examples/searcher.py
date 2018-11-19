@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- 
 
-from libsearch import apk_downloader
-from libsearch import extract_zip
+from libsearch.processing.apk import parse_apk
 
-apk_downloader("auto_and_vehicles")
+# apk_downloader("auto_and_vehicles")
 
-# extract_zip("sample.apk")
+parse_apk("./cache/sample.apk", "sample.apk")

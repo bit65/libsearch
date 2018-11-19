@@ -1,4 +1,5 @@
 from tempfile import NamedTemporaryFile
+from ..dbmodels import *
 
 def parse_file(zipfile, function, file_name):
     try:

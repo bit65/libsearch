@@ -1,3 +1,6 @@
+import subprocess
+from ..dbmodels import *
+
 def parse_dex(file_name, orig_name):
     args = ['./ext/dexinfo/dexinfo', file_name, '-V']
     args2 = ['grep', '-oP', 'class_idx.*?L\K([^;\$]*)']
