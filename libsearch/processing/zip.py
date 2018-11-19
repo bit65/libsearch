@@ -2,46 +2,50 @@ import os
 from StringIO import StringIO
 from urllib import urlopen
 from zipfile import ZipFile
-
+from tempfile import NamedTemporaryFile
+from base import ParserBase
+"""
 from ..dbmodels import *
-from .general import parse_file
+# from .general import parse_file
 
 from .xml import parse_xml
-from .so import parse_so
+from .elf import parse_elf
 from .properties import parse_properties
 from .json import parse_json
 from .dex import parse_dex
+from parser import Parser
+"""
 
+from magic import Magic, MAGIC_MIME_TYPE
 
-def parse_zip(file_name, orig_name):
-    full_path = os.path.abspath(file_name)
-    resp = urlopen(full_path)
-    zipfile = ZipFile(StringIO(resp.read()))
+parsetype = "application/zip"
+ext = "zip"
 
-    # Get files from zip
-    new_items = [SaveData(data=i.filename, metadata={"crc":i.CRC}) for i in zipfile.infolist()]
-    save_data(new_items, "ZIP_NAMES", file_name)
+class ZIPParser(ParserBase):
+    def parse(self, file_name):
+        full_path = os.path.abspath(file_name)
+        resp = urlopen(full_path)
+        zipfile = ZipFile(StringIO(resp.read()))
 
-    # Process files inside zip
-    extract_names(zipfile)
-    
-def extract_names(zipfile):
-    for name in zipfile.namelist():
-        
-        if name.endswith(".so"):
-            parse_file(zipfile, parse_so, name)
+        # Get files from zip
+        new_items = [{"data": i.filename, "metadata": {"crc":i.CRC}} for i in zipfile.infolist()]
+        # save_data(new_items, "ZIP_NAMES", file_name)
 
-        if name.endswith(".xml"):
-            parse_file(zipfile, parse_xml, name)
-            
-        if name.endswith(".json"):
-            parse_file(zipfile, parse_json, name)
-        
-        if name.endswith(".properties"):
-            parse_file(zipfile, parse_properties, name)
+        # Process files inside zip
+        self.extract_names(zipfile)
 
-        if name.endswith(".dex"):
-            parse_file(zipfile, parse_dex, name)
+        return new_items
 
-        if name.endswith(".zip") or name.endswith(".apk"):
-            parse_file(zipfile, parse_zip, name)
+    def extract_names(self, zipfile):
+        for name in zipfile.namelist():
+            try:
+                with NamedTemporaryFile(delete=True) as temp:
+                    temp.write(zipfile.open(name).read())
+                    temp.flush()
+                    filetype = self.parser.m.id_filename(temp.name)
+
+                    self.parser.parsers[self.parser.m.id_filename(temp.name)](temp.name)
+                    print "File: %s Type: %s" % (name, filetype)
+
+            except Exception as e:
+                pass
