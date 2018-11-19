@@ -60,10 +60,10 @@ def save_data(data, type, asset):
 
         with psql_db.atomic():
             for _,d in uniq_data.items():
-                
                 try:
                     if __DEBUG__ONLY__:
-                        print d, type, asset
+                        # print d, type, asset
+                        pass
                     else:
                         DataDump.create(
                             data=d.data, 
