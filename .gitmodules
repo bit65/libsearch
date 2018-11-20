@@ -1,6 +1,3 @@
 [submodule "ext/dexinfo"]
 	path = ext/dexinfo
 	url = https://github.com/bit65/dexinfo
-[submodule "webapp"]
-	path = webapp
-	url = git@github.com:searchkit/searchkit-starter-app.git
