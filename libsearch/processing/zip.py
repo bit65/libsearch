@@ -5,7 +5,7 @@ from zipfile import ZipFile
 
 from ..dbmodels import *
 
-from .xml import parse_xml
+from .xmlp import parse_xml
 from .so import parse_so
 from .properties import parse_properties
 from .json import parse_json

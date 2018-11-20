@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- 
 
-from libsearch import init_db
+from libsearch.dbmodels import init_db
 
 init_db()

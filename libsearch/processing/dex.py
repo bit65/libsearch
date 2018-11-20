@@ -13,7 +13,9 @@ def parse_dex(file_name, orig_name):
     
     modules = (process_grep.communicate()[0]).splitlines()
 
-    new_modules = [SaveData(data=m) for m in modules]
+    real_path = '/' + '/'.join(file_name.split('/')[3:])
+
+    new_modules = [SaveData(data=m, metadata={"dex": real_path}) for m in modules]
 
     return [
         ("MODULES",new_modules)
