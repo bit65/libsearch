@@ -1,7 +1,7 @@
 # import os
-# from StringIO import StringIO
+from StringIO import StringIO
 # from urllib import urlopen
-# from zipfile import ZipFile
+from zipfile import ZipFile
 # from tempfile import NamedTemporaryFile
 # from base import ParserBase
 # """
@@ -19,20 +19,41 @@
 # from magic import Magic, MAGIC_MIME_TYPE
 
 from libsearch.processing.base import ParserBase
+# from libsearch.processing.serachparser import Parser
+import os
+
 
 parsetype = "application/zip"
 ext = "zip"
 
 class ZIPParser(ParserBase):
     def parse(self, file_name):
-        pass
-#         full_path = os.path.abspath(file_name)
-#         resp = urlopen(full_path)
-#         zipfile = ZipFile(StringIO(resp.read()))
 
-#         # Get files from zip
-#         new_items = [{"data": i.filename, "metadata": {"crc":i.CRC}} for i in zipfile.infolist()]
-#         # save_data(new_items, "ZIP_NAMES", file_name)
+
+
+        filename_w_ext = os.path.basename(file_name)
+        information = []
+
+        zipfile = ZipFile(file_name)
+
+        # gParser = Parser()
+
+        for x in zipfile.infolist():
+            information.append(
+                {
+                    "VALUE": x.filename,
+                    "CRC":   x.CRC,
+                    "ASSET": filename_w_ext,
+                    "TYPE": "FILE"
+                })
+            
+            # gParser.parse(x.file_name)
+
+        return information
+
+        # Get files from zip
+        # new_items = [{"data": i.filename, "metadata": {"crc":i.CRC}} for i in zipfile.infolist()]
+        # save_data(new_items, "ZIP_NAMES", file_name)
 
 #         # Process files inside zip
 #         self.extract_names(zipfile)

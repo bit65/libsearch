@@ -29,6 +29,7 @@ class Parser:
         self.m.close()
 
     def register(self, parser, mimetypes, ext):
+
         if type(mimetypes) == list:
             for mimetype in mimetypes:
                 if mimetype not in Parser.parsers:

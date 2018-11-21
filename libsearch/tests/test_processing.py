@@ -17,6 +17,11 @@ class TestProcessing(unittest.TestCase):
     def test_so(self):
         results = Parser().parse(dir_path + "/samples/libJniBitmapOperator.so")
         print results
+
+    def test_zip(self):
+        results = Parser().parse(dir_path + "/samples/sample.apk")
+        print results
+
         # self.assertEqual('foo'.upper(), 'FOO')
 
 
