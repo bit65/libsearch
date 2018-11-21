@@ -18,11 +18,13 @@ from parser import Parser
 
 from magic import Magic, MAGIC_MIME_TYPE
 
-parsetype = "application/zip"
-ext = "zip"
-
 class ZIPParser(ParserBase):
+    parsetype = "application/zip"
+    ext = "zip"
+
     def parse(self, file_name):
+        print("ZIP Parsing %s" % file_name)
+
         full_path = os.path.abspath(file_name)
         resp = urlopen(full_path)
         zipfile = ZipFile(StringIO(resp.read()))
@@ -43,9 +45,17 @@ class ZIPParser(ParserBase):
                     temp.write(zipfile.open(name).read())
                     temp.flush()
                     filetype = self.parser.m.id_filename(temp.name)
+                    name, ext = os.path.splitext(name)
 
-                    self.parser.parsers[self.parser.m.id_filename(temp.name)](temp.name)
-                    print "File: %s Type: %s" % (name, filetype)
+                    # Remove '.' from extention
+                    ext = ext[1:]
+
+                    if filetype in self.parser.parsers and ext in self.parser.parsers[filetype]:
+                        print "File: %s Type: %s Ext: %s" % (name, filetype, ext)
+                        self.parser.parsers[filetype][ext].parse(temp.name)
+                    else:
+                        print "Unsupported type: %s %s" % (name, filetype)
 
             except Exception as e:
+                print e
                 pass

@@ -16,30 +16,31 @@ class Parser:
             if filename.endswith(".py"):
                 m = imp.load_source(filename[:-3], path.sep.join([path.dirname(__file__), filename]))
 
-                for member in filter(lambda x: "Parser" in x, dir(m)):
-                    print m
+                for member in filter(lambda x: "Parser" in x and "ParserBase" not in x and getattr(getattr(m, x), "parse") is not None, dir(m)):
                     cls = getattr(m, member)
                     if inspect.isclass(cls):
-                        obj = cls(self)
+                        # print m, cls
+                        parser = cls(self)
 
-                        self.register(obj, m.parsetype, m.ext)
+                        self.register(parser, cls.parsetype, cls.ext)
 
     def __del__(self):
         self.m.close()
 
     def register(self, parser, mimetypes, ext):
+        # print "Registering [%s][%s]" % (mimetypes, ext), parser.parse
         if type(mimetypes) == list:
             for mimetype in mimetypes:
                 if mimetype not in Parser.parsers:
                     Parser.parsers[mimetype] = {}
 
-                Parser.parsers[mimetype][ext] = parser.parse
+                Parser.parsers[mimetype][ext] = parser
         else:
             if mimetypes not in Parser.parsers:
                 Parser.parsers[mimetypes] = {}
 
-            Parser.parsers[mimetypes][ext] = parser.parse
+            Parser.parsers[mimetypes][ext] = parser
 
     def parse(self, filename):
         name, ext = path.splitext(filename)
-        Parser.parsers[self.m.id_filename(filename), ext[1:]](filename)
+        Parser.parsers[self.m.id_filename(filename)][ext[1:]].parse(filename)

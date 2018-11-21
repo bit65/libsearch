@@ -2,10 +2,10 @@ from libsearch.processing.base import ParserBase
 from elftools.elf.elffile import ELFFile
 from cxxfilt import demangle
 
-parsetype = ['application/x-executable', 'application/x-sharedlib']
-ext = "so"
-
 class ELFParser(ParserBase):
+    parsetype = ['application/x-executable', 'application/x-sharedlib']
+    ext = "so"
+
     def parse(self, orig_name):
         if orig_name.startswith("lib/"):
             _, system, name =  orig_name.split('/')

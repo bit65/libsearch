@@ -3,11 +3,11 @@ import subprocess
 
 # from ..dbmodels import *
 
-parsetype = "application/octet-stream"
-ext = "dex"
-
 class DEXParser(ParserBase):
-    def parse(file_name):
+    parsetype = "application/octet-stream"
+    ext = "dex"
+
+    def parse(self, file_name):
         args = ['./ext/dexinfo/dexinfo', file_name, '-V']
         args2 = ['grep', '-oP', 'class_idx.*?L\K([^;\$]*)']
 
