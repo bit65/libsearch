@@ -1,29 +1,30 @@
+from libsearch.processing.base import ParserBase
 import xml.etree.ElementTree as ET
 import os
 
-from ..dbmodels import *
+parsetype = "text/xml"
+ext = "xml"
 
-def parse_xml(file_name, orig_name):
-
-    ret_data = []
-
-    with open(file_name, "r") as file:
-        file_data = file.read()
-
-        real_path = '/' + '/'.join(file_name.split('/')[3:])
-        print real_path
-        print file_name
-        xml_saved_data = [SaveData(data=file_data, metadata={"name": real_path})]
-        ret_data.append(("XML_DATA", xml_saved_data))
-
-    if file_name.endswith("AndroidManifest.xml"):
-        root = ET.parse(file_name).getroot()
-        permissions = [SaveData(data=p.attrib.items()[0][1]) for p in root.findall('uses-permission')]
+class XMLParser(ParserBase):
+    def parse(self, file_name):
+        with open(file_name, "r") as file:
+            filename_w_ext = os.path.basename(file_name)
+            file_data = file.read()
             
-        ret_data.append(("PERMISSIONS",permissions))
+            # Retrieve information from manifest
+            if filename_w_ext.endswith("AndroidManifest.xml"):
+                root = ET.parse(file_name).getroot()
+                information = []
 
-    
-    
-    return ret_data
+                # Get Permissions
+                for p in root.findall('uses-permission'):
+                    information.append(
+                        {
+                            "VALUE": p.attrib.items()[0][1],
+                            "ASSET": filename_w_ext,
+                            "TYPE": "PERMISSIONS"
+                        })
+                        
+                # TODO - Get more stuff 
 
-    
+                return information
