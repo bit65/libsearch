@@ -2,10 +2,11 @@ from libsearch.processing.base import ParserBase
 import xml.etree.ElementTree as ET
 import os
 
-parsetype = "text/xml"
-ext = "xml"
-
 class XMLParser(ParserBase):
+    
+    parsetype = ["application/octet-stream", "text/plain", "text/xml"]
+    ext = "xml"
+
     def parse(self, file_name):
         with open(file_name, "r") as file:
             filename_w_ext = os.path.basename(file_name)

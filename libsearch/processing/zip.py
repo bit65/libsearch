@@ -1,35 +1,17 @@
-# import os
+
 from StringIO import StringIO
-# from urllib import urlopen
 from zipfile import ZipFile
-# from tempfile import NamedTemporaryFile
-# from base import ParserBase
-# """
-# from ..dbmodels import *
-# # from .general import parse_file
-
-# from .xml import parse_xml
-# from .elf import parse_elf
-# from .properties import parse_properties
-# from .json import parse_json
-# from .dex import parse_dex
-# from parser import Parser
-# """
-
-# from magic import Magic, MAGIC_MIME_TYPE
 
 from libsearch.processing.base import ParserBase
 # from libsearch.processing.serachparser import Parser
 import os
 
 
-parsetype = "application/zip"
-ext = "zip"
-
 class ZIPParser(ParserBase):
+    parsetype = "application/zip"
+    ext = "zip"
+
     def parse(self, file_name):
-
-
 
         filename_w_ext = os.path.basename(file_name)
         information = []
@@ -116,17 +98,24 @@ class ZIPParser(ParserBase):
 #         elif name.endswith(".dex"):
 #             parse_file(zipfile, parse_dex, name)
 
-#         elif name.endswith(".zip") or name.endswith(".apk"):
-#             parse_file(zipfile, parse_zip, name)
+    # def extract_names(self, zipfile):
+    #     for name in zipfile.namelist():
+    #         try:
+    #             with NamedTemporaryFile(delete=True) as temp:
+    #                 temp.write(zipfile.open(name).read())
+    #                 temp.flush()
+    #                 filetype = self.parser.m.id_filename(temp.name)
+    #                 name, ext = os.path.splitext(name)
 
-#         elif name.endswith(".js"):
-#             pass
-#         elif name.endswith(".png") or name.endswith(".jpg"):
-#             pass
-#         else:
-#             print "file not supported - %s" % name
-#                     self.parser.parsers[self.parser.m.id_filename(temp.name)](temp.name)
-#                     print "File: %s Type: %s" % (name, filetype)
+    #                 # Remove '.' from extention
+    #                 ext = ext[1:]
 
-#             except Exception as e:
-#                 pass
+    #                 if filetype in self.parser.parsers and ext in self.parser.parsers[filetype]:
+    #                     print "File: %s Type: %s Ext: %s" % (name, filetype, ext)
+    #                     self.parser.parsers[filetype][ext].parse(temp.name)
+    #                 else:
+    #                     print "Unsupported type: %s %s" % (name, filetype)
+
+    #         except Exception as e:
+    #             print e
+    #             pass

@@ -3,13 +3,15 @@ from elftools.elf.elffile import ELFFile
 from cxxfilt import demangle
 import os
 
-parsetype = ['application/x-executable', 'application/x-sharedlib']
-ext = "so"
-
 class ELFParser(ParserBase):
+
+    parsetype = ['application/x-executable', 'application/x-sharedlib']
+    ext = "so"
+
     def parse(self, file_name):
-        filename_w_ext = os.path.basename(file_name)
+        
         information = []
+        filename_w_ext = os.path.basename(file_name)
         with open(file_name, "rb") as f:
             e = ELFFile(f)
             for s in e.iter_sections():
