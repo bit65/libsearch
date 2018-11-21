@@ -1,5 +1,5 @@
 from libsearch.processing.base import ParserBase
-import libsearch.processing.pydexinfo as pydexinfo
+import pydexinfo
 import subprocess
 import re
 
