@@ -1,15 +1,13 @@
 from libsearch.processing.base import ParserBase
 from libsearch.processing.zip import ZIPParser
 
-
-
 class APKParser(ZIPParser):
     parsetype = "application/zip"
     ext = "apk"
 
-    def parse(self, file_name):
-        print "APK Parsing"
-        # super(self).parse(file_name)
+    # def parse(self, file_name):
+    #     print "APK Parsing"
+    #     super(ZIPParser, self).parse(file_name)
 
 # import subprocess
 # import tempfile
