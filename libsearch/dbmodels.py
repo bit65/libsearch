@@ -2,7 +2,7 @@ from peewee import *
 from playhouse.postgres_ext import *
 import json
 
-__DEBUG__ONLY__ = True
+__DEBUG__ONLY__ = False
 
 dbname="libsearch"
 dbuser="postgress"
@@ -18,7 +18,7 @@ class BaseModel(Model):
         database = psql_db
 
 class DataDump(BaseModel):
-    data = CharField(1024)
+    data = CharField(4096)
     # dvector = TSVectorField()
     metadata = JSONField()
     dtype = CharField()
@@ -31,7 +31,7 @@ class DataDump(BaseModel):
 
 class SaveData():
     def __init__(self, data, metadata={}):
-        self.data = data
+        self.data = data[:4095]
         self.metadata = metadata
 
     def __str__(self):
@@ -59,11 +59,14 @@ def save_data(data, type, asset):
             uniq_data[d.__hash__()] = d
 
         with psql_db.atomic():
+            print "Found %d items of %s from %s" % (len(uniq_data.items()),type, asset)
+
             for _,d in uniq_data.items():
                 
                 try:
                     if __DEBUG__ONLY__:
-                        print d, type, asset
+                        # print d, type, asset
+                        pass
                     else:
                         DataDump.create(
                             data=d.data, 

@@ -43,4 +43,6 @@ class Parser:
 
     def parse(self, filename):
         name, ext = path.splitext(filename)
-        Parser.parsers[self.m.id_filename(filename)][ext[1:]].parse(filename)
+        mime = self.m.id_filename(filename)
+
+        return Parser.parsers[mime][ext[1:]].parse(filename)

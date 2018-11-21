@@ -3,3 +3,4 @@ cache
 *.egg-info
 *.pyc
 ext/dexinfo
+ext/apktool.jar
