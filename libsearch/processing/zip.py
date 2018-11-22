@@ -12,7 +12,6 @@ class ZIPParser(ParserBase):
     ext = "zip"
 
     def parse(self, file_name):
-
         filename_w_ext = os.path.basename(file_name)
         information = []
 
@@ -28,7 +27,7 @@ class ZIPParser(ParserBase):
                     "ASSET": filename_w_ext,
                     "TYPE": "FILE"
                 })
-            
+
             # gParser.parse(x.file_name)
 
         return information
