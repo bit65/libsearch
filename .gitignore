@@ -4,3 +4,4 @@ cache
 *.pyc
 ext/dexinfo
 ext/apktool.jar
+ext/abc.exe

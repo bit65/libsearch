@@ -2,11 +2,13 @@ from os import listdir, path
 import inspect
 import imp
 from magic import Magic, MAGIC_MIME_TYPE
+from libsearch.storage.indexer import Indexer
 
 class Parser:
     parsers = {}
 
     def __init__(self):
+        self.indexer = Indexer()
         self.m = Magic(flags = MAGIC_MIME_TYPE)
 
         for filename in listdir(path.dirname(__file__)):
@@ -41,10 +43,13 @@ class Parser:
 
             Parser.parsers[mimetypes][ext] = parser
 
-    def parse(self, filename):
+    def parse(self, filename, index=False):
         name, ext = path.splitext(filename)
         mime = self.m.id_filename(filename)
 
-        return Parser.parsers[mime][ext[1:]].parse(filename)
+        results = Parser.parsers[mime][ext[1:]].parse(filename)
+        if index:
+            self.indexer.save(results)
+        return results
 
         
