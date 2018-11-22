@@ -5,9 +5,11 @@ class APKParser(ZIPParser):
     parsetype = "application/zip"
     ext = "apk"
 
-    # def parse(self, file_name):
-    #     print "APK Parsing"
-    #     super(ZIPParser, self).parse(file_name)
+    def parse(self, file_name):
+        print "APK Parsing"
+        information = ZIPParser.parse(self, file_name)
+
+        return information
 
 # import subprocess
 # import tempfile

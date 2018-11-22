@@ -1,6 +1,8 @@
 from libsearch.processing.base import ParserBase
 import xml.etree.ElementTree as ET
 import os
+import axmlparserpy.axmlprinter as axmlprinter
+from StringIO import StringIO
 
 class XMLParser(ParserBase):
     
@@ -14,7 +16,11 @@ class XMLParser(ParserBase):
             
             # Retrieve information from manifest
             if filename_w_ext.endswith("AndroidManifest.xml"):
-                root = ET.parse(file_name).getroot()
+                ap = axmlprinter.AXMLPrinter(open(file_name, 'rb').read())
+                # buff = minidom.parseString(ap.getBuff()).toxml()
+                # print()
+
+                root = ET.parse(StringIO(ap.getBuff())).getroot()
                 information = []
 
                 # Get Permissions

@@ -1,5 +1,10 @@
 # Extraction Tasks
 
+* so
+  * hash on files
+  * version extraction
+    * hash multiple paramaters
+  * 
 * Parse more data from dex file
   * Currently gets list of modules only
   * We want to get much more data, extract more assets such as strings

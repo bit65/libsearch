@@ -11,14 +11,15 @@ class Indexer:
         self.create_index(index_name)
 
 
-    def save(self, data):
+    def save(self, data, parent):
         if isinstance(data, list):
             for doc in data:
-                self.save(doc)
+                self.save(doc, parent)
         else:
-            if ('TYPE' in data and 'ASSET' in data and 'VALUE' in data):
+            data['PARENT'] = parent
+            if ('TYPE' in data and 'ASSET' in data and 'VALUE' in data and 'PARENT' in data):
 
-                id_hash = hashlib.sha256(data['TYPE'] + data['ASSET'] + data['VALUE'])
+                id_hash = hashlib.sha256(data['PARENT'] + data['TYPE'] + data['ASSET'] + data['VALUE'])
 
                 self.es.index(index=self.index_name, id=id_hash.hexdigest(), doc_type='_doc', body=data)
 
@@ -59,6 +60,9 @@ class Indexer:
             "mappings": {
                 "_doc": {
                     "properties": {
+                        "PARENT": {
+                            "type": "text"
+                        },
                         "TYPE": {
                             "type": "text"
                         },

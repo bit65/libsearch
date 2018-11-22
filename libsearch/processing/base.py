@@ -6,4 +6,4 @@ class ParserBase:
         self.parser = parser
 
     def parse(self, filename):
-        pass
+        return []

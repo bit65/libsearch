@@ -3,6 +3,9 @@ from elftools.elf.elffile import ELFFile
 from cxxfilt import demangle
 import os
 
+# TODO - ADD CHECKSUM OF ELF
+# TODO - GET VERSION FROM ?? (Strings,...)
+
 class ELFParser(ParserBase):
 
     parsetype = ['application/x-executable', 'application/x-sharedlib']

@@ -43,13 +43,15 @@ class Parser:
 
             Parser.parsers[mimetypes][ext] = parser
 
-    def parse(self, filename, index=False):
+    def parse(self, filename, index=False, parent=None):
         name, ext = path.splitext(filename)
         mime = self.m.id_filename(filename)
 
-        results = Parser.parsers[mime][ext[1:]].parse(filename)
-        if index:
-            self.indexer.save(results)
-        return results
-
-        
+        if mime in Parser.parsers and ext[1:] in Parser.parsers[mime]:
+            results = Parser.parsers[mime][ext[1:]].parse(filename)
+            if index:
+                self.indexer.save(results, parent)
+            return results
+        else:
+            return []
+            
