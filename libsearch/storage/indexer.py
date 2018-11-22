@@ -3,8 +3,15 @@ from elasticsearch import Elasticsearch
 import hashlib
 
 class Indexer:
+    _instance = None
 
-    
+    @staticmethod
+    def instance():
+        if Indexer._instance == None:
+            Indexer._instance = Indexer()
+
+        return Indexer._instance
+
     def __init__(self, index_name='libsearch_docs'):
         self.es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
         self.index_name = index_name

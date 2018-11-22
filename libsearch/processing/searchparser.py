@@ -8,7 +8,6 @@ class Parser:
     parsers = {}
 
     def __init__(self):
-        self.indexer = Indexer()
         self.m = Magic(flags = MAGIC_MIME_TYPE)
 
         for filename in listdir(path.dirname(__file__)):
@@ -43,15 +42,23 @@ class Parser:
 
             Parser.parsers[mimetypes][ext] = parser
 
+    def get_parser(self, filename):
+        name, ext = path.splitext(filename)
+        mime = self.m.id_filename(filename)
+
+        if mime in Parser.parsers and ext[1:] in Parser.parsers[mime]:
+            return Parser.parsers[mime][ext[1:]]
+
+        return None
+
     def parse(self, filename, index=False, parent=None):
         name, ext = path.splitext(filename)
         mime = self.m.id_filename(filename)
 
         if mime in Parser.parsers and ext[1:] in Parser.parsers[mime]:
-            results = Parser.parsers[mime][ext[1:]].parse(filename)
+            results = Parser.parsers[mime][ext[1:]].parser.parse(filename)
             if index:
-                self.indexer.save(results, parent)
+                Indexer.instance().save(results, parent)
             return results
         else:
             return []
-            

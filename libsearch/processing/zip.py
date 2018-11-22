@@ -3,7 +3,7 @@ from StringIO import StringIO
 from zipfile import ZipFile
 
 from libsearch.processing.base import ParserBase
-from libsearch.processing.serachparser import Parser as P
+from libsearch.processing.searchparser import Parser as P
 import os
 import shutil
 
@@ -22,9 +22,9 @@ class ZIPParser(ParserBase):
         try:
             temp_dir = mkdtemp()
             zipfile.extractall(temp_dir)
-            
+
             for x in zipfile.infolist():
-                # Add File 
+                # Add File
                 information.append(
                     {
                         "VALUE": x.filename,
