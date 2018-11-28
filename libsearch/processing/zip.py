@@ -6,16 +6,16 @@ from libsearch.processing.base import ParserBase
 from libsearch.processing.searchparser import Parser as P
 import os
 import shutil
+import traceback
 
 class ZIPParser(ParserBase):
     parsetype = "application/zip"
     ext = "zip"
 
-    def parse(self, file_name):
-        filename_w_ext = os.path.basename(file_name)
+    def _parse(self, f):
         information = []
 
-        zipfile = ZipFile(file_name)
+        zipfile = ZipFile(f)
 
         gParser = P()
 
@@ -29,20 +29,28 @@ class ZIPParser(ParserBase):
                     {
                         "VALUE": x.filename,
                         "CRC":   x.CRC,
-                        "ASSET": filename_w_ext,
+                        "ASSET": self.filename,
                         "TYPE": "FILE"
                     })
 
                 # Process File
                 full_path = temp_dir + os.sep + x.filename
+                parser = gParser.get_parser(x.filename)
+
+                if parser is None:
+                    # print "No parser for %s" % x.filename
+                    continue
+
                 try:
-                    results = gParser.parse(full_path, parent=filename_w_ext)
+                    results = parser.parse(zipfile.open(x.filename))
+
                     if results is not None:
                         information += results
 
                 except Exception as e:
                     print "Cannot process %s" % x.filename
                     print e
+                        
 
         finally:
             try:

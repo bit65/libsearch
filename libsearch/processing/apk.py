@@ -5,9 +5,9 @@ class APKParser(ZIPParser):
     parsetype = "application/zip"
     ext = "apk"
 
-    def parse(self, file_name):
+    def _parse(self, f):
         print "APK Parsing"
-        information = ZIPParser.parse(self, file_name)
+        information = ZIPParser._parse(self, f)
 
         return information
 

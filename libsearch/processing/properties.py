@@ -4,6 +4,6 @@ class PROPParser(ParserBase):
     parsetype = "text/plain"
     ext = "properties"
 
-    def parse(self, orig_name):
+    def _parse(self, f):
+        print "properties", self.filename
         return []
-        # print "properties", orig_name

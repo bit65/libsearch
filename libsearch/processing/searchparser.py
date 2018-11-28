@@ -20,45 +20,23 @@ class Parser:
                 for member in filter(lambda x: "Parser" in x and "ParserBase" not in x and getattr(getattr(m, x), "parse") is not None, dir(m)):
                     cls = getattr(m, member)
                     if inspect.isclass(cls):
-                        # print m, cls
-                        parser = cls(self)
-
-                        self.register(parser, cls.parsetype, cls.ext)
+                        self.register(cls, cls.ext)
 
     def __del__(self):
         self.m.close()
 
-    def register(self, parser, mimetypes, ext):
+    def register(self, parser, ext):
         # print "Registering [%s][%s]" % (mimetypes, ext), parser.parse
-        if type(mimetypes) == list:
-            for mimetype in mimetypes:
-                if mimetype not in Parser.parsers:
-                    Parser.parsers[mimetype] = {}
-
-                Parser.parsers[mimetype][ext] = parser
+        if type(ext) == list:
+            for e in ext:
+                Parser.parsers[e] = parser
         else:
-            if mimetypes not in Parser.parsers:
-                Parser.parsers[mimetypes] = {}
-
-            Parser.parsers[mimetypes][ext] = parser
+            Parser.parsers[ext] = parser
 
     def get_parser(self, filename):
         name, ext = path.splitext(filename)
-        mime = self.m.id_filename(filename)
 
-        if mime in Parser.parsers and ext[1:] in Parser.parsers[mime]:
-            return Parser.parsers[mime][ext[1:]]
+        if ext[1:] in Parser.parsers:
+            return Parser.parsers[ext[1:]](filename)
 
         return None
-
-    def parse(self, filename, index=False, parent=None):
-        name, ext = path.splitext(filename)
-        mime = self.m.id_filename(filename)
-
-        if mime in Parser.parsers and ext[1:] in Parser.parsers[mime]:
-            results = Parser.parsers[mime][ext[1:]].parser.parse(filename)
-            if index:
-                Indexer.instance().save(results, parent)
-            return results
-        else:
-            return []

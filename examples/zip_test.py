@@ -3,6 +3,5 @@
 
 from libsearch.processing.searchparser import Parser
 
-parser = Parser().get_parser("cache/Carista OBD2_v3.7.3_apkpure.com.apk"
+parser = Parser().get_parser("../libsearch/tests/samples/sample.apk")
 print parser.parse()
-print Parser().parse("cache/Carista OBD2_v3.7.3_apkpure.com.apk", index = False)

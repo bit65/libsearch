@@ -9,17 +9,18 @@ class DEXParser(ParserBase):
     parsetype = "application/octet-stream"
     ext = "dex"
 
-    def parse(self, file_name):
-        filename_w_ext = os.path.basename(file_name)
-        s = pydexinfo.dexinfo(file_name, True)
+    def _parse(self, f):
+        s = pydexinfo.parse(f, True)
         information = []
 
         modules = set(re.findall("class_idx.*?L([^;\$]*)", s))
+
+        #modules = set(re.findall("class_idx.*?L([^;\$]*)", s))
         for m in modules:
             information.append(
                 {
                     "VALUE": m,
-                    "ASSET": filename_w_ext,
+                    "ASSET": self.filename,
                     "TYPE": "MODULES"
                 })
 
