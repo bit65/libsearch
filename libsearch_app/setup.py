@@ -9,5 +9,7 @@ setup(name='libsearch',
       license='',
       packages=['libsearch'],
       install_requires=[
+            'filemagic',
+            'elasticsearch>=6.0.0,<7.0.0'
       ],
       zip_safe=False)

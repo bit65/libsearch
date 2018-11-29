@@ -1,8 +1,0 @@
-[
-    {"CRC": 4070427585, "TYPE": "FILE", "ASSET": "sample.apk", "VALUE": "META-INF/GOOGPLAY.SF"},
-    {"CRC": 1789408184, "TYPE": "FILE", "ASSET": "sample.apk", "VALUE": "META-INF/GOOGPLAY.RSA"},
-    {"CRC": 3162323000, "TYPE": "FILE", "ASSET": "sample.apk", "VALUE": "META-INF/MANIFEST.MF"},
-    {"TYPE": "PERMISSIONS", "ASSET": "AndroidManifest.xml", "VALUE": "me.everything.badger.permission.BADGE_COUNT_READ"},
-    {"TYPE": "PERMISSIONS", "ASSET": "AndroidManifest.xml", "VALUE": "me.everything.badger.permission.BADGE_COUNT_WRITE"},
-    {"TYPE": "PERMISSIONS", "ASSET": "AndroidManifest.xml", "VALUE": "com.porsche.engb.center.permission.C2D_MESSAGE"}
-]

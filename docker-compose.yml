@@ -23,8 +23,7 @@ services:
     build: libsearch_app
     container_name: libsearch_app
     volumes:
-      - ./libsearch_app/tmp:/home/libsearch/libsearch_cache
-      - ./libsearch:/home/libsearch/libsearch
+      - ./libsearch_app:/home/libsearch
 
   elasticsearch:
     build: elasticsearch

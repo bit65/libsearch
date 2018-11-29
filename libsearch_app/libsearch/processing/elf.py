@@ -14,7 +14,7 @@ class ELFParser(ParserBase):
     def _parse(self, f):
         print "ELF Parsing"
         information = []
-        filename_w_ext = os.path.basename(file_name)
+        
         e = ELFFile(f)
         for s in e.iter_sections():
             if s['sh_type'] == 'SHT_STRTAB':
