@@ -5,3 +5,5 @@ cache
 ext/dexinfo
 ext/apktool.jar
 ext/abc.exe
+libsearch_app/tmp/
+marple/central-lucene-index/

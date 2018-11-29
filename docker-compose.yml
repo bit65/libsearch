@@ -1,16 +1,31 @@
 version: '3'
 services:
-  db:
-    image: postgres:latest
+  # db:
+  #   image: postgres:latest
+  #   volumes:
+  #     - db_data:/var/lib/postgresql/data
+  #   restart: always
+  #   environment:
+  #     POSTGRES_DB: postgress
+  #     POSTGRES_PASSWORD: postgress
+  #     POSTGRES_USER: postgress
+  #   ports:
+  #     - "5432:5432"
+  marple:
+    build: marple
+    container_name: marple
     volumes:
-      - db_data:/var/lib/postgresql/data
-    restart: always
-    environment:
-      POSTGRES_DB: postgress
-      POSTGRES_PASSWORD: postgress
-      POSTGRES_USER: postgress
+      - ./marple/central-lucene-index:/central-lucene-index
     ports:
-      - "5432:5432"
+      - 9300:8080
+
+  libsearch:
+    build: libsearch_app
+    container_name: libsearch_app
+    volumes:
+      - ./libsearch_app/tmp:/home/libsearch/libsearch_cache
+      - ./libsearch:/home/libsearch/libsearch
+
   elasticsearch:
     build: elasticsearch
     container_name: elasticsearch
@@ -37,35 +52,6 @@ services:
       - "elasticsearch:elasticsearch"
     depends_on:
       - elasticsearch
-  # search:
-  #   build: searcher
-  #   links:
-  #     - "db:db"
-  #   depends_on:
-  #     - db
-  #   environment:
-  #     PGDATABASE: libsearch
-  #     PGPASSWORD: postgress
-  #     PGUSER: postgress
-  #     PGHOST: db
-  #   ports:
-  #     - "5000:5000"
-  # prest:
-  #   build: prest
-  #   links:
-  #       - "db:db"
-  #   environment:
-  #     - PREST_DEBUG=true # remove comment for enable DEBUG mode (disable JWT)
-  #     - PREST_PG_HOST=db
-  #     - PREST_PG_USER=postgress
-  #     - PREST_PG_PASS=postgress
-  #     - PREST_PG_DATABASE=libsearch
-  #     - PREST_PG_PORT=5432
-  #     - PREST_JWT_DEFAULT=false # remove if need jwt
-  #   depends_on:
-  #     - db
-  #   ports:
-  #     - "3000:3000"
 volumes:
   db_data:
   es_data:
