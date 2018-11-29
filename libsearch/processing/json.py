@@ -4,6 +4,6 @@ class JSONParser(ParserBase):
     parsetype = "text/json"
     ext = "json"
 
-    def parse(file_name):
-        # print "Handle json", file_name
+    def _parse(self, file_name):
+        print "Handle json", self.filename
         return []
