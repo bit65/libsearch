@@ -19,43 +19,27 @@ class ZIPParser(ParserBase):
 
         gParser = P()
 
-        try:
-            temp_dir = mkdtemp()
-            zipfile.extractall(temp_dir)
+        # try:
+        for x in zipfile.infolist():
+            # Add File to index
+            data = self.createData("FILE",x.filename)
+            data["CRC"] = x.CRC
+            information.append(data)
 
-            for x in zipfile.infolist():
-                # Add File
-                information.append(
-                    {
-                        "VALUE": x.filename,
-                        "CRC":   x.CRC,
-                        "ASSET": self.filename,
-                        "TYPE": "FILE"
-                    })
+            # Process File
+            parser = gParser.get_parser(x.filename)
 
-                # Process File
-                full_path = temp_dir + os.sep + x.filename
-                parser = gParser.get_parser(x.filename)
-
-                if parser is None:
-                    # print "No parser for %s" % x.filename
-                    continue
-
-                try:
-                    results = parser.parse(zipfile.open(x.filename))
-
-                    if results is not None:
-                        information += results
-
-                except Exception as e:
-                    print "Cannot process %s" % x.filename
-                    print e
-                        
-
-        finally:
+            if parser is None:
+                continue
+            
             try:
-                shutil.rmtree(temp_dir)
+                results = parser.parse(zipfile.open(x.filename), parent=self.filename_w)
+
+                if results is not None:
+                    information += results
+
             except Exception as e:
+                print "Cannot process %s" % x.filename
                 print e
 
         return information

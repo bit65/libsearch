@@ -26,7 +26,7 @@ class XMLParser(ParserBase):
                 information.append(
                     {
                         "VALUE": p.attrib.items()[0][1],
-                        "ASSET": self.filename,
+                        "ASSET": self.filename_w,
                         "TYPE": "PERMISSIONS"
                     })
                         

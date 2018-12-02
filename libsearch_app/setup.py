@@ -10,6 +10,9 @@ setup(name='libsearch',
       packages=['libsearch'],
       install_requires=[
             'filemagic',
-            'elasticsearch>=6.0.0,<7.0.0'
+            'elasticsearch>=6.0.0,<7.0.0',
+            'pyelftools',
+            'cxxfilt',
+            'AxmlParserPY'
       ],
       zip_safe=False)
