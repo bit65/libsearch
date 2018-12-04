@@ -28,7 +28,8 @@ class ParserBase:
 
         return ret
     
-    def createData(self, dtype, dvalue):
+    def createData(self, dtype, dvalue=""):
+        # print "%s - %s" % (dtype, dvalue)
         return {
             "VALUE": dvalue,
             "FILE": self.filename_w,

@@ -13,6 +13,7 @@ setup(name='libsearch',
             'elasticsearch>=6.0.0,<7.0.0',
             'pyelftools',
             'cxxfilt',
-            'AxmlParserPY'
+            'AxmlParserPY',
+            'libarsc'
       ],
       zip_safe=False)

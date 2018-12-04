@@ -14,20 +14,23 @@ class TestProcessing(unittest.TestCase):
 
     def test_manifest_xml(self):
         results = Parser().get_parser(dir_path + "/samples/AndroidManifest.xml")
-        print len(results.parse())
+        print len(results.parse()), "Modules Found"
+
+    def test_arsc(self):
+        results = Parser().get_parser(dir_path + "/samples/resources.arsc")
+        print len(results.parse()), "Modules Found"
 
     def test_so(self):
         results = Parser().get_parser(dir_path + "/samples/libJniBitmapOperator.so")
-        print len(results.parse())
+        print len(results.parse()), "Modules Found"
 
     def test_apk(self):
-        results = Parser().get_parser(dir_path + "/samples/sample.apk")
-        print len(results.parse())
+        results = Parser().get_parser(dir_path + "/samples/pango.apk")
+        print len(results.parse()), "Modules Found"
 
     def test_dex(self):
-
         results = Parser().get_parser(dir_path + "/samples/classes.dex")
-        print len(results.parse())
+        print len(results.parse()), "Modules Found"
 
 
 

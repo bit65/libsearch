@@ -65,7 +65,8 @@ asset_whitelist = {
     "com.michele.administrator.obdkontrol": "Michele OBD Kontrol",
     "com.obdeleven": "OBD ELEVEN",
     "com.voltasit.obdeleven": "OBD ELEVEN",
-    "com.company.ahmetunal.VehicleSensorMonitor": "Ahmetunal VehicleSensorMonitor"
+    "com.company.ahmetunal.VehicleSensorMonitor": "Ahmetunal VehicleSensorMonitor",
+    "com.kakao": "Kakao"
 }
 
 

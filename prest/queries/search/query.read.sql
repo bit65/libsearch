@@ -1,1 +1,0 @@
-SELECT data, dtype, asset FROM datadump where data like '%{{.field1}}%'

@@ -8,6 +8,8 @@ import os
 import shutil
 import traceback
 
+import datetime
+
 class ZIPParser(ParserBase):
     parsetype = "application/zip"
     ext = "zip"
@@ -33,7 +35,11 @@ class ZIPParser(ParserBase):
                 continue
             
             try:
+                before = datetime.datetime.now()
                 results = parser.parse(zipfile.open(x.filename), parent=self.filename_w)
+                after = datetime.datetime.now()
+                if (after - before) > datetime.timedelta(seconds=1):
+                    print "Parsed %s in %s" % (x.filename, str(after - before))
 
                 if results is not None:
                     information += results

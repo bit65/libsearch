@@ -5,5 +5,5 @@ class PROPParser(ParserBase):
     ext = "properties"
 
     def _parse(self, f):
-        print "properties", self.filename
+        # print "properties", self.filename
         return []

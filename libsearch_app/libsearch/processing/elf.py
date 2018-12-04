@@ -12,6 +12,7 @@ class ELFParser(ParserBase):
     ext = "so"
 
     def _parse(self, f):
+        return []
         print "ELF Parsing"
         information = []
         
@@ -24,7 +25,7 @@ class ELFParser(ParserBase):
                         information.append(
                             {
                                 "VALUE": demangle(x),
-                                "ASSET": self.filename,
+                                "ASSET": self.filename_w,
                                 "TYPE": "ELF-FUNCTIONS"
                             })
         

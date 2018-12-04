@@ -1,6 +1,13 @@
 
 from elasticsearch import Elasticsearch
+from elasticsearch import helpers
 import hashlib
+import datetime
+
+def xstr(s):
+    if s is None:
+        return ''
+    return str(s)
 
 class Indexer:
     _instance = None
@@ -18,16 +25,25 @@ class Indexer:
         self.create_index(index_name)
 
 
-    def save(self, data, parent):
+    def save(self, data):
         if isinstance(data, list):
-            for doc in data:
-                self.save(doc, parent)
+            docs = [{
+                    "_index": self.index_name,
+                    "_type": "_doc",
+                    "_id": xstr(doc['TYPE']) + xstr(doc['ASSET']) + xstr(doc['VALUE']),
+                    "_source": doc
+                    } for doc in data]
+            before = datetime.datetime.now()
+            helpers.bulk(self.es, docs)
+            after = datetime.datetime.now()            
+            print "Bulk Indexed %s docs in %s" % (len(docs), str(after - before))
+            
+            # self.save(doc)
         else:
-            data['PARENT'] = parent
-            if ('TYPE' in data and 'ASSET' in data and 'VALUE' in data and 'PARENT' in data):
 
-                id_hash = hashlib.sha256(data['PARENT'] + data['TYPE'] + data['ASSET'] + data['VALUE'])
+            if ('TYPE' in data and 'ASSET' in data and 'VALUE' in data):
 
+                id_hash = hashlib.sha256(xstr(data['TYPE']) + xstr(data['ASSET']) + xstr(data['VALUE']))
                 self.es.index(index=self.index_name, id=id_hash.hexdigest(), doc_type='_doc', body=data)
 
     def create_index(self, index_name):
@@ -68,17 +84,23 @@ class Indexer:
                 "_doc": {
                     "properties": {
                         "PARENT": {
-                            "type": "text"
+                            "type": "keyword"
                         },
                         "TYPE": {
-                            "type": "text"
+                            "type": "keyword"
                         },
                         "ASSET": {
-                            "type": "text"
+                            "type": "keyword"
                         },
                         "VALUE": {
-                            "type": "text",
-                            "analyzer":"splitter_analyzer"
+                            "type": "keyword",
+                            "fields": {
+                                "splitted": {
+                                    "type": "text",
+                                    "analyzer":"splitter_analyzer"
+                                }
+                            }
+                            
                         }
                     }
                 }

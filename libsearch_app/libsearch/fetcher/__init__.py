@@ -1,23 +1,40 @@
-from .processing.zip import ZIPParser
+import requests
+from lxml import html
+import os
+import code
 
-def apk_downloader(category):
-    for page in range(1,100):
-        page = requests.get('https://apkpure.com/%s?sort=new&page=%d' % (category, page))
+host = "https://apkpure.com"
+# parser = etree.XMLParser(recover=True)
+
+def apk_downloader(search):
+    # for page in range(1,100):
+    pos = 0
+    s = requests.session()
+
+    while True:
+        page = s.get('%s/search-page?q=%s&begin=%d' % (host, search, pos))
+        print '%s/search-page?q=%s&begin=%d' % (host, search, pos)
         tree = html.fromstring(page.content)
-        links = tree.xpath('//ul[@id="pagedata"]/li/div[@class="category-template-down"]/a')
+        # code.interact(local=locals())
+        links = tree.xpath('//dl[@class=\'search-dl\']/dt[1]/a[1]/@href')
+        if len(links) == 0:
+            break
+        print "Found %d" % len(links)
+        
         for link in links:
+            pos += 1
+            apk_class= link.split('/')[-1] + '.apk'
 
-            page = requests.get('https://apkpure.com%s' % link.get("href"))
-            tree = html.fromstring(page.content)
-            download_link = tree.xpath('//a[@id="download_link"]')[0]
-            name = tree.xpath('//div[@class="fast-download-box"]//span[@class="file"]/text()')[0].strip()
-            name = re.sub('[^\w\-_\. ]', '_', name)
-
-            try:
-                if not os.path.isfile("./cache/%s" % name):
-                    page = requests.get(download_link.get("href"), allow_redirects=True)
-                    open('./cache/%s' % name, 'wb').write(page.content)
-                    ZIPParser().parse(name)
-                    print "Downloaded %s" % name
-            except:
-                print "Failed downloading %s" % name 
+            if not os.path.isfile("./cache/%s" % apk_class):
+                try:
+                    page = s.get('%s%s/download?from=details' % (host, link))
+                    tree = html.fromstring(page.content)
+                    # apk_class= tree.xpath('//@data-pkg')[0] + '.apk'
+                    download_link = tree.xpath('//iframe[@id=\'iframe_download\']')[0]
+                    
+                    page = s.get(download_link.get('src'), allow_redirects=True)
+                    open('./cache/%s' % apk_class, 'wb').write(page.content)
+                    print "Downloaded %s" % apk_class
+                except Exception as e:
+                    print "Failed downloading %s" % apk_class
+                    print e
