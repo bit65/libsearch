@@ -64,17 +64,8 @@ class Indexer:
                     },
                     "tokenizer": {
                         "splitter_tokenizer": {
-                        "type": "char_group",
-                        "tokenize_on_chars": [
-                            "whitespace",
-                            ".",
-                            "\\",
-                            "/",
-                            "_",
-                            ":",
-                            "*",
-                            "-"
-                            ]
+                        "type": "pattern",
+                        "pattern": "[\s\.\\/_:*-]"
                         }
                     }
                 },
