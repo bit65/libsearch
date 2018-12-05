@@ -13,14 +13,14 @@ class Indexer:
     _instance = None
 
     @staticmethod
-    def instance():
+    def instance(options={'hosts': [{'host': 'localhost', 'port': 9200}]}):
         if Indexer._instance == None:
-            Indexer._instance = Indexer()
+            Indexer._instance = Indexer(options=options)
 
         return Indexer._instance
 
-    def __init__(self, index_name='libsearch_docs'):
-        self.es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
+    def __init__(self, options, index_name='libsearch_docs'):
+        self.es = Elasticsearch(**options)
         self.index_name = index_name
         self.create_index(index_name)
 
@@ -40,7 +40,6 @@ class Indexer:
             
             # self.save(doc)
         else:
-
             if ('TYPE' in data and 'ASSET' in data and 'VALUE' in data):
 
                 id_hash = hashlib.sha256(xstr(data['TYPE']) + xstr(data['ASSET']) + xstr(data['VALUE']))
