@@ -48,10 +48,11 @@ class DEXParser(ParserBase):
         return module_info
 
     def _parse(self, f):
+        print "PARSING DEX"
         s = pydexinfo.parse(f, True)
         information = []
 
         information += self._parse_modules(s)
 
-
+        print "DONE DEX"
         return information

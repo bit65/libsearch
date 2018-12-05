@@ -27,10 +27,12 @@ class XMLParser(ParserBase):
 
     def _parse(self, file):
         
+
         file_data = file.read()
 
         # Retrieve information from manifest
         if self.filename.endswith("AndroidManifest.xml"):
+            print "Parsing MANIFEST XML"
             ap = AXMLPrinter(file_data)
             
             
@@ -39,9 +41,6 @@ class XMLParser(ParserBase):
             information = []
 
             # Get Permissions
-
-            
-            
             for p in root.findall('uses-permission'):
                 attribute = extract_attribute(p,'name')
                 if attribute:

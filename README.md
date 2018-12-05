@@ -1,12 +1,28 @@
 # QUICK INSTALL
 
-git submodule init
-git submodule update
+mkdir /opt && cd /opt && git clone https://github.com/bit65/libsearch
 
-make -C ./ext/dexinfo/
-pip install -e .
 
-wget https://github.com/iBotPeaches/Apktool/releases/download/v2.3.4/apktool_2.3.4.jar -o ./ext/apktool.jar
+cd /opt/libsearch && git submodule init && git submodule update
+
+cd /opt/libsearch/libsearch_app && pip install -e .
+
+
+# Install pydexinfo
+<!-- make -C ./ext/dexino/ -->
+cd /opt/libsearch/libsearch_app/ext/dexinfo && make && pip install -e .
+
+# Install PyLucene
+sudo apt-get install -y default-jdk ant
+
+curl https://www.apache.org/dist/lucene/pylucene/pylucene-7.5.0-src.tar.gz \
+    | tar -xz --strip-components=1
+
+sudo apt install openjdk-8-jdk-headless
+
+cd jcc && sudo JCC_JDK=/usr/lib/jvm/default-java python setup.py install
+
+make all install JCC='python -m jcc' ANT=ant PYTHON=python NUM_FILES=8
 
 # TESTS
 python -m unittest libsearch.tests.test_processing.TestProcessing

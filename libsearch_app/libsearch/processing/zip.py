@@ -15,11 +15,10 @@ class ZIPParser(ParserBase):
     ext = "zip"
 
     def _parse(self, f):
+        print "Parsing ZIP"
         information = []
 
         zipfile = ZipFile(f)
-
-        gParser = P()
 
         # try:
         for x in zipfile.infolist():
@@ -29,7 +28,7 @@ class ZIPParser(ParserBase):
             information.append(data)
 
             # Process File
-            parser = gParser.get_parser(x.filename)
+            parser = P.instance().get_parser(x.filename)
 
             if parser is None:
                 continue

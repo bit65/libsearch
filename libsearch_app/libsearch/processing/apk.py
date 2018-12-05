@@ -6,7 +6,7 @@ class APKParser(ZIPParser):
     ext = "apk"
 
     def _parse(self, f):
-        print "APK Parsing"
+        print "Parsing APK"
         information = ZIPParser._parse(self, f)
 
         return information

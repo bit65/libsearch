@@ -1,3 +1,4 @@
-[submodule "ext/dexinfo"]
-	path = ext/dexinfo
+[submodule "libsearch_app/ext/dexinfo"]
+	path = libsearch_app/ext/dexinfo
 	url = https://github.com/bit65/dexinfo
+	

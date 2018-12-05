@@ -2,9 +2,17 @@ from os import listdir, path
 import inspect
 import imp
 from magic import Magic, MAGIC_MIME_TYPE
-from libsearch.storage.indexer import Indexer
 
 class Parser:
+    _instance = None
+
+    @staticmethod
+    def instance():
+        if Parser._instance == None:
+            Parser._instance = Parser()
+
+        return Parser._instance
+
     parsers = {}
 
     def __init__(self):

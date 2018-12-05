@@ -14,6 +14,9 @@ setup(name='libsearch',
             'pyelftools',
             'cxxfilt',
             'AxmlParserPY',
-            'libarsc'
+            'libarsc',
+            'requests',
+            'lxml',
+            'androgaurd'
       ],
       zip_safe=False)
