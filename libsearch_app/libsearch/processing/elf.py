@@ -26,12 +26,7 @@ class ELFParser(ParserBase):
                     for x in s.data().split("\x00"):
                         if x != "":
                             # Get Symbols
-                            information.append(
-                                {
-                                    "VALUE": demangle(x),
-                                    "ASSET": self.filename_w,
-                                    "TYPE": "ELF-FUNCTIONS"
-                                })
+                            information.append(self.createData("ELF-FUNCTIONS", demangle(x)))
         
         return information
 
