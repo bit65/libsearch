@@ -2,3 +2,6 @@
 	path = libsearch_app/ext/dexinfo
 	url = https://github.com/bit65/dexinfo
 	
+[submodule "libsearch_app/ext/libident"]
+	path = libsearch_app/ext/libident
+	url = https://github.com/bit65/Library-Identification
