@@ -3,6 +3,19 @@ import os
 parsetype = ""
 ext = ""
 
+def _uppercase_for_dict_keys(lower_dict):
+    upper_dict = {}
+    for k, v in lower_dict.items():
+        if isinstance(v, dict):
+            v = _uppercase_for_dict_keys(v)
+        upper_dict[k.upper()] = v
+    return upper_dict
+
+def merge_dicts(x, y):
+    z = x.copy()   # start with x's keys and values
+    z.update(y)    # modifies z with y's keys and values & returns None
+    return z
+
 class ParserBase:
     def __init__(self, filename):
         self.filename = filename
@@ -28,11 +41,13 @@ class ParserBase:
 
         return ret
     
-    def createData(self, dtype, dvalue=""):
+    def createData(self, dtype, dvalue, **kwargs):
         # print "%s - %s" % (dtype, dvalue)
-        return {
-            "VALUE": dvalue,
-            "FILE": self.filename_w,
-            "ASSET": self.parent,
-            "TYPE": dtype
-        }
+
+        return merge_dicts(_uppercase_for_dict_keys(dict(kwargs)),
+                            {
+                                "VALUE": dvalue,
+                                "FILE": self.filename_w,
+                                "ASSET": self.parent,
+                                "TYPE": dtype
+                            })

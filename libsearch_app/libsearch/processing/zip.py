@@ -1,12 +1,8 @@
-from tempfile import mkdtemp
-from StringIO import StringIO
+
 from zipfile import ZipFile
 
 from libsearch.processing.base import ParserBase
 from libsearch.processing.searchparser import Parser as P
-import os
-import shutil
-import traceback
 
 import datetime
 
