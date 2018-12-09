@@ -30,15 +30,16 @@ class Indexer:
 
     def save(self, data):
         if isinstance(data, list):
-            id_hash = hashlib.sha256(xstr(doc['TYPE']) + xstr(doc['ASSET']) + xstr(doc['VALUE'])).hexdigest()
 
-
-            docs = [{
-                "_index": self.index_name,
-                "_type": "_doc",
-                "_id": id_hash,
-                "_source": doc
-            } for doc in data]
+            docs = []
+            for doc in data:
+                id_hash = hashlib.sha256(xstr(doc['TYPE']) + xstr(doc['ASSET']) + xstr(doc['VALUE'])).hexdigest()
+                docs.append({
+                    "_index": self.index_name,
+                    "_type": "_doc",
+                    "_id": id_hash,
+                    "_source": doc
+                })
             before = datetime.datetime.now()
             helpers.bulk(self.es, docs)
             after = datetime.datetime.now()
