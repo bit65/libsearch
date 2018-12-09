@@ -20,16 +20,18 @@ files = os.listdir(dir_path)
 for f in files:
     if f.endswith(".apk"):
         if os.path.isfile(dir_path + os.sep + f + '.indexed'):
+            print "Already indexed: %s" % (dir_path + os.sep + f)
             continue
 
         try:
             parser = Parser.instance().get_parser(dir_path + os.sep + f)
             if parser != None:
                 index_data = parser.parse()
-                Indexer.instance(aws_options).save(index_data)
+                # Indexer.instance(aws_options).save(index_data)
+                # print index_data
                 with open(dir_path + os.sep + f + '.indexed', 'w') as cached:
                     cached.write(str(datetime.date.today()))
         except Exception as e:
-            pass
+            print e
 
 print "Done"

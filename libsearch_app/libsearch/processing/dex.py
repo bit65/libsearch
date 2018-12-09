@@ -62,6 +62,8 @@ class DEXParser(ParserBase):
 
     def _parse(self, f):
         print "PARSING DEX"
+        # TODO: Remove when done
+        return []
                 
         classes = self.readFromDEX(f)
 
