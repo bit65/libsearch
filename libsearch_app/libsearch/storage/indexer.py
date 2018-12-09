@@ -30,10 +30,13 @@ class Indexer:
 
     def save(self, data):
         if isinstance(data, list):
+            id_hash = hashlib.sha256(xstr(doc['TYPE']) + xstr(doc['ASSET']) + xstr(doc['VALUE'])).hexdigest()
+
+
             docs = [{
                 "_index": self.index_name,
                 "_type": "_doc",
-                "_id": xstr(doc['TYPE']) + xstr(doc['ASSET']) + xstr(doc['VALUE']),
+                "_id": id_hash,
                 "_source": doc
             } for doc in data]
             before = datetime.datetime.now()
@@ -44,8 +47,8 @@ class Indexer:
             # self.save(doc)
         else:
             if 'TYPE' in data and 'ASSET' in data and 'VALUE' in data:
-                id_hash = hashlib.sha256(xstr(data['TYPE']) + xstr(data['ASSET']) + xstr(data['VALUE']))
-                self.es.index(index=self.index_name, id=id_hash.hexdigest(), doc_type='_doc', body=data)
+                id_hash = hashlib.sha256(xstr(data['TYPE']) + xstr(data['ASSET']) + xstr(data['VALUE'])).hexdigest()
+                self.es.index(index=self.index_name, id=id_hash, doc_type='_doc', body=data)
 
     def create_index(self, index_name):
         created = False
