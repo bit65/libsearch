@@ -285,7 +285,7 @@ class ELFParser(ParserBase):
                             try:
                                 information.append(self.createData("ELF-FUNCTIONS", demangle(x)))
                             except:
-                                information.append(self.createData("ELF-FUNCTIONE", x))
+                                information.append(self.createData("ELF-FUNCTIONS", x))
 
         os.unlink(tmpname)
         return information
