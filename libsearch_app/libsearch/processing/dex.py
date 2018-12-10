@@ -11,43 +11,10 @@ import gc
 class DEXParser(ParserBase):
 
     def __init__(self, filename):
-        # self.module_mapper = ModuleMapper()
         ParserBase.__init__(self, filename)
 
     parsetype = "application/octet-stream"
     ext = "dex"
-    
-    def _parse_modules(self, s):
-        module_info = []
-        # print s
-        modules = set(re.findall("class_idx.*?L([^;\\$]*)", s))
-        
-        
-
-        modules = list(set([".".join(m.split("/")[:-1]) for m in modules]))
-
-        libs = []
-        missing_module_libs = []
-        for m in modules:
-            module_info.append(self.createData("MODULES", m))
-            # _libs = self.module_mapper.search(m)
-            # libs += _libs
-            # if len(_libs) == 0:
-            #     missing_module_libs.append(m)            
-
-        for lib in list(set(libs)):
-            module_info.append(self.createData("LIB", lib))
-
-        print "****************\nMISSSING MODULES\n*****************"
-        for m in missing_module_libs:
-            print "* %s" %  m
-        print "****************************"
-
-            
-
-        # module_info = self.module_finder._analyze(module_info, parent=self.parent)
-
-        return module_info
 
     def readFromDEX(self, f):
         d = dvm.DalvikVMFormat(f.read())
@@ -55,22 +22,25 @@ class DEXParser(ParserBase):
         for c in d.get_classes():
             classes.append('.'.join(c.get_name().split('/')[:-1])[1:])
 
-        del d
-        gc.collect()
         return list(set(classes))
 
 
     def _parse(self, f):
         print "PARSING DEX"
-        # TODO: Remove when done
-        return []
-                
-        classes = self.readFromDEX(f)
+        information = []        
+        modules = self.readFromDEX(f)
 
-        # s = pydexinfo.parse(f, True)
-        information = [self.createData("MODULES", i) for i in classes]
+        libs = []
+        missing_module_libs = []
+        for m in modules:
+            libs += ModuleMapper.instance().search(m)
 
-        # information += self._parse_modules(s)
+        for lib in list(set(libs)):
+            information.append(self.createData("APK-LIBRARY", lib))
+            print lib
 
+        information += [self.createData("MODULES", i) for i in modules]
+
+        
         print "DONE DEX"
         return information

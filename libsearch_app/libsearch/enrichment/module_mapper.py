@@ -71,6 +71,15 @@ asset_whitelist = {
 
 
 class ModuleMapper:
+    _instance = None
+
+    @staticmethod
+    def instance():
+        if ModuleMapper._instance == None:
+            ModuleMapper._instance = ModuleMapper()
+
+        return ModuleMapper._instance
+
     def __init__(self):
         lucene.initVM()
         base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -80,6 +89,7 @@ class ModuleMapper:
         self.searcher = IndexSearcher(DirectoryReader.open(directory))
     
     def search(self, module):
+        print "searching for module", module
         # Hack for mono modules
         module = re.sub('^mono.','',module)
 

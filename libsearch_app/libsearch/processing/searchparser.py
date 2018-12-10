@@ -2,6 +2,7 @@ from os import listdir, path
 import inspect
 import imp
 from magic import Magic, MAGIC_MIME_TYPE
+from base import ParserBase
 
 class Parser:
     _instance = None
@@ -22,13 +23,17 @@ class Parser:
             if filename in __file__:
                 continue
 
-            if filename.endswith(".py"):
+            if filename.endswith(".py") and not filename.startswith("_"):
+                # print filename[:-3], path.sep.join([path.dirname(__file__), filename])
                 m = imp.load_source(filename[:-3], path.sep.join([path.dirname(__file__), filename]))
 
-                for member in filter(lambda x: "Parser" in x and "ParserBase" not in x and getattr(getattr(m, x), "parse") is not None, dir(m)):
+                for member in dir(m):
+                    if member is "ParserBase":
+                        continue
                     cls = getattr(m, member)
-                    if inspect.isclass(cls):
+                    if inspect.isclass(cls) and issubclass(cls, ParserBase):
                         self.register(cls, cls.ext)
+
 
     def __del__(self):
         self.m.close()

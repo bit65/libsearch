@@ -2,7 +2,7 @@ from libsearch.processing.base import ParserBase
 from elftools.elf.elffile import ELFFile
 from cxxfilt import demangle
 import tempfile
-from libident import ReferenceDB, handle_library
+import inspectelf
 import itertools
 import operator
 import hashlib
@@ -286,6 +286,10 @@ class ELFParser(ParserBase):
                                 information.append(self.createData("ELF-FUNCTIONS", demangle(x)))
                             except:
                                 information.append(self.createData("ELF-FUNCTIONS", x))
+
+        flags = inspectelf.inspect(tmpname, recursive = False, skip_arch_check = True)
+
+        information.append(self.createData("ELF-FLAGS", self.filename, **flags[tmpname]))
 
         os.unlink(tmpname)
         return information
