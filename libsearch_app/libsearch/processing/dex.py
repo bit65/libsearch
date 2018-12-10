@@ -11,7 +11,7 @@ import gc
 class DEXParser(ParserBase):
 
     def __init__(self, filename):
-        # self.module_mapper = ModuleMapper()
+        self.module_mapper = ModuleMapper()
         ParserBase.__init__(self, filename)
 
     parsetype = "application/octet-stream"
@@ -22,7 +22,6 @@ class DEXParser(ParserBase):
         # print s
         modules = set(re.findall("class_idx.*?L([^;\\$]*)", s))
         
-        
 
         modules = list(set([".".join(m.split("/")[:-1]) for m in modules]))
 
@@ -30,22 +29,19 @@ class DEXParser(ParserBase):
         missing_module_libs = []
         for m in modules:
             module_info.append(self.createData("MODULES", m))
-            # _libs = self.module_mapper.search(m)
-            # libs += _libs
+            _libs = self.module_mapper.search(m)
+            libs += _libs
             # if len(_libs) == 0:
-            #     missing_module_libs.append(m)            
+            #     missing_module_libs.append(m)
 
         for lib in list(set(libs)):
-            module_info.append(self.createData("LIB", lib))
+            module_info.append(self.createData("APK-LIBRARY", lib))
 
         print "****************\nMISSSING MODULES\n*****************"
         for m in missing_module_libs:
             print "* %s" %  m
         print "****************************"
 
-            
-
-        # module_info = self.module_finder._analyze(module_info, parent=self.parent)
 
         return module_info
 
