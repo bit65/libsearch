@@ -4,6 +4,7 @@
 import os
 from libsearch.processing.searchparser import Parser
 from libsearch.storage.indexer import Indexer
+import traceback
 
 import datetime
 
@@ -26,10 +27,13 @@ for f in files:
             parser = Parser.instance().get_parser(dir_path + os.sep + f)
             if parser != None:
                 index_data = parser.parse()
+                # import pprint
+                # pprint.pprint(index_data)
                 Indexer.instance(aws_options).save(index_data)
                 with open(dir_path + os.sep + f + '.indexed', 'w') as cached:
                     cached.write(str(datetime.date.today()))
-        except Exception as e:
+        except Exception:
+            print(traceback.format_exc())
             pass
 
 print "Done"
