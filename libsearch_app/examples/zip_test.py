@@ -21,6 +21,7 @@ files = os.listdir(dir_path)
 for f in files:
     if f.endswith(".apk"):
         if os.path.isfile(dir_path + os.sep + f + '.indexed'):
+            print "Already indexed: %s" % (dir_path + os.sep + f)
             continue
 
         try:
