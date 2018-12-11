@@ -17,6 +17,7 @@ setup(name='libsearch',
             'libarsc',
             'requests',
             'lxml',
-            'androgaurd'
+            'androgaurd',
+            'https://github.com/bit65/inspectelf'
       ],
       zip_safe=False)

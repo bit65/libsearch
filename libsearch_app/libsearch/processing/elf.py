@@ -287,10 +287,10 @@ class ELFParser(ParserBase):
                             except:
                                 information.append(self.createData("ELF-FUNCTIONS", x))
 
-        flags = inspectelf.inspect(tmpname, recursive = False, skip_arch_check = True)
+        flags = inspectelf.inspect(tmpname, recursive = False)
 
         information.append(self.createData("ELF-FLAGS", self.filename, **flags[tmpname]))
-
+        
         os.unlink(tmpname)
         return information
 

@@ -11,3 +11,4 @@ libsearch_app/libsearch/tests/samples/
 libsearch_app/central-lucene-index/
 obd_apps/
 .idea/
+libsearch_app/db/
