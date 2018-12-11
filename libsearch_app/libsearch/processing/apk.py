@@ -57,7 +57,7 @@ class APKParser(ParserBase):
             if skip_android_assets and (x.filename == 'AndroidManifest.xml' or x.filename == 'resources.arsc'):
                 continue
 
-            data = self.createData("FILE", x.filename)
+            data = self.createData("FILE", filename=x.filename)
             data["CRC"] = x.CRC
             information.append(data)
 
@@ -93,7 +93,7 @@ class APKParser(ParserBase):
 
 
         for p in arcParser.get_packages_names():
-            information.append(self.createData("APK-PACKAGES", p))
+            information.append(self.createData("APK-PACKAGES", package=p))
 
             for locale in arcParser.get_locales(p):
                 for t in arcParser.get_types(p, locale):
@@ -105,16 +105,15 @@ class APKParser(ParserBase):
                                 if isinstance(value, unicode):
                                     value = unidecode(value)
 
-                                information.append(self.createData("APK-RESOURCE-PUBLIC", value, locale=locale, package=p, restype=t, type=type, id=id))
+                                information.append(self.createData("APK-RESOURCE-PUBLIC", resource=value, locale=locale, package=p, restype=t, type=type, id=id))
                             elif len(x) == 2:
                                 (key, value) = x
 
-                                # print "TypeB", type(value)
                                 if isinstance(value, unicode):
                                     value = unidecode(value)
 
                                 information.append(
-                                    self.createData("APK-RESOURCE-" + t.upper(), value, locale=locale, package=p, restype=t,
+                                    self.createData("APK-RESOURCE-" + t.upper(), resource=value, locale=locale, package=p, restype=t,
                                                     key=key))
                             else:
                                 value = x[0]
@@ -122,7 +121,7 @@ class APKParser(ParserBase):
                                     value = unidecode(value)
 
                                 information.append(
-                                    self.createData("APK-RESOURCE-" + t.upper(), value, locale=locale, package=p, restype=t))
+                                    self.createData("APK-RESOURCE-" + t.upper(), resource=value, locale=locale, package=p, restype=t))
                         except Exception as e:
                             print x
                             print e
@@ -138,12 +137,12 @@ class APKParser(ParserBase):
         for p in root.findall('uses-permission'):
             attribute = self.extract_attribute(p, 'name')
             if attribute:
-                information.append(self.createData("APK-PERMISSIONS", attribute))
+                information.append(self.createData("APK-PERMISSIONS", permission=attribute))
 
         for p in root.findall('uses-feature'):
             attribute = self.extract_attribute(p, 'name')
             if attribute:
-                information.append(self.createData("APK-FEATURE", attribute))
+                information.append(self.createData("APK-FEATURE", feature=attribute))
 
         app = root.find('application')
         for p in app.findall('activity'):
@@ -154,26 +153,26 @@ class APKParser(ParserBase):
                 for c in intent.findall('category'):
                     category = self.extract_attribute(c, 'name')
                     information.append(
-                        self.createData("APK-ACTIVITY", attribute, action=action, category=category))
+                        self.createData("APK-ACTIVITY", activity=attribute, action=action, category=category))
 
                 for c in intent.findall('data'):
                     host = self.extract_attribute(c, 'host')
                     scheme = self.extract_attribute(c, 'scheme')
-                    information.append(self.createData("APK-ACTIVITY", attribute, action=action, host=host, scheme=scheme))
+                    information.append(self.createData("APK-ACTIVITY", activity=attribute, action=action, host=host, scheme=scheme))
 
         for e in app.findall('uses-library'):
             lib = self.extract_attribute(e, 'name')
-            information.append(self.createData("APK-USES-LIB", lib))
+            information.append(self.createData("APK-USES-LIB", library=lib))
 
         for e in app.findall('meta-data'):
             name = self.extract_attribute(e, 'name')
             value = self.extract_attribute(e, 'value')
-            information.append(self.createData("APK-META", value, name=name))
+            information.append(self.createData("APK-META", metakey=name, metavalue=value))
 
         for e in app.findall('receiver'):
             attributes = self.extract_all_attributes(e)
             name = self.extract_attribute(e, 'name')
-            data = self.createData("APK-RECIEVER",name)
+            data = self.createData("APK-RECIEVER",reciever=name)
             for attr, value in attributes:
                 if attr == "exported":
                     data["EXPORTED"] = value
@@ -187,12 +186,12 @@ class APKParser(ParserBase):
             for intent in e.findall('intent-filter'):
                 for a in intent.findall('action'):
                     action = self.extract_attribute(a, 'name')
-                    information.append(self.createData("APK-RECIEVER-ACTION", action, reciever=name))
+                    information.append(self.createData("APK-RECIEVER-ACTION", action=action, reciever=name))
 
 
         attributes = self.extract_all_attributes(app)
         for attr, value in attributes:
-            information.append(self.createData("APK-ATTR-%s" % attr.upper(), value))
+            information.append(self.createData("APK-ATTR-%s" % attr.upper(), attribute=value))
 
 
         return information

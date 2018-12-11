@@ -26,17 +26,20 @@ class Indexer:
     def __init__(self, options, index_name='libsearch_docs'):
         self.es = Elasticsearch(**options)
         self.index_name = index_name
-        self.create_index(index_name)
+        # self.create_index(index_name)
 
     def save(self, data):
         if isinstance(data, list):
 
             docs = []
             for doc in data:
-                id_hash = hashlib.sha256(xstr(doc['TYPE']) + xstr(doc['ASSET']) + xstr(doc['VALUE'])).hexdigest()
+                id_hash = hashlib.sha256(str(doc.items())).hexdigest()
+                
+                index = 'index_'+ doc['TYPE'].lower()
+
                 docs.append({
-                    "_index": self.index_name,
-                    "_type": "_doc",
+                    "_index": index,
+                    "_type": '_doc',
                     "_id": id_hash,
                     "_source": doc
                 })
@@ -47,9 +50,8 @@ class Indexer:
 
             # self.save(doc)
         else:
-            if 'TYPE' in data and 'ASSET' in data and 'VALUE' in data:
-                id_hash = hashlib.sha256(xstr(data['TYPE']) + xstr(data['ASSET']) + xstr(data['VALUE'])).hexdigest()
-                self.es.index(index=self.index_name, id=id_hash, doc_type='_doc', body=data)
+            id_hash = hashlib.sha256(str(doc.items())).hexdigest()
+            self.es.index(index=self.index_name, id=id_hash, doc_type='_doc', body=data)
 
     def create_index(self, index_name):
         created = False
@@ -58,48 +60,8 @@ class Indexer:
             "settings": {
                 "number_of_shards": 1,
                 "number_of_replicas": 0,
-                "analysis": {
-                    "analyzer": {
-                        "splitter_analyzer": {
-                            "type": "custom",
-                            "tokenizer": "splitter_tokenizer",
-                            "filter": [
-                                "lowercase"
-                            ]
-                        }
-                    },
-                    "tokenizer": {
-                        "splitter_tokenizer": {
-                            "type": "pattern",
-                            "pattern": "[\\s\\.\\\\/_:*-]"
-                        }
-                    }
-                },
             },
-            "mappings": {
-                "_doc": {
-                    "properties": {
-                        "PARENT": {
-                            "type": "keyword"
-                        },
-                        "TYPE": {
-                            "type": "keyword"
-                        },
-                        "ASSET": {
-                            "type": "keyword"
-                        },
-                        "VALUE": {
-                            "type": "keyword",
-                            "fields": {
-                                "splitted": {
-                                    "type": "text",
-                                    "analyzer": "splitter_analyzer"
-                                }
-                            }
-
-                        }
-                    }
-                }
+            "mappings": {   
             }
         }
 

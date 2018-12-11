@@ -283,13 +283,13 @@ class ELFParser(ParserBase):
                         if x != "":
                             # Get Symbols
                             try:
-                                information.append(self.createData("ELF-FUNCTIONS", demangle(x)))
+                                information.append(self.createData("ELF-FUNCTIONS", demangled=demangle(x), mangled=x))
                             except:
-                                information.append(self.createData("ELF-FUNCTIONS", x))
+                                information.append(self.createData("ELF-FUNCTIONS", mangled=x))
 
         flags = inspectelf.inspect(tmpname, recursive = False)
 
-        information.append(self.createData("ELF-FLAGS", self.filename, **flags[tmpname]))
+        information.append(self.createData("ELF-FLAGS", **flags[tmpname]))
         
         os.unlink(tmpname)
         return information

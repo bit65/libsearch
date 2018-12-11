@@ -36,10 +36,10 @@ class DEXParser(ParserBase):
             libs += ModuleMapper.instance().search(m)
 
         for lib in list(set(libs)):
-            information.append(self.createData("APK-LIBRARY", lib))
-            print lib
+            information.append(self.createData("APK-LIBRARY", library=lib))
+            # print lib
 
-        information += [self.createData("MODULES", i) for i in modules]
+        information += [self.createData("MODULES", module=i) for i in modules]
 
         
         print "DONE DEX"

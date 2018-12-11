@@ -19,7 +19,7 @@ class ZIPParser(ParserBase):
         # try:
         for x in zipfile.infolist():
             # Add File to index
-            data = self.createData("FILE",x.filename)
+            data = self.createData("FILE",filename=x.filename)
             data["CRC"] = x.CRC
             information.append(data)
 
