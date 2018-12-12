@@ -11,13 +11,7 @@ services:
   #     POSTGRES_USER: postgress
   #   ports:
   #     - "5432:5432"
-  marple:
-    build: marple
-    container_name: marple
-    volumes:
-      - ./marple/central-lucene-index:/central-lucene-index
-    ports:
-      - 9300:8080
+
 
   libsearch:
     build: libsearch_app
