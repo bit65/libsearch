@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# encoding: utf-8
+
 
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers
 import hashlib
 import datetime
-
 
 def xstr(s):
     if s is None:
@@ -33,25 +33,31 @@ class Indexer:
 
             docs = []
             for doc in data:
-                id_hash = hashlib.sha256(str(doc.items())).hexdigest()
-                
-                index = 'index_'+ doc['TYPE'].lower()
+                # self.save(doc)
+                # continue
 
-                docs.append({
-                    "_index": index,
-                    "_type": '_doc',
-                    "_id": id_hash,
-                    "_source": doc
-                })
+                if 'INDEX' in doc:
+                    index = 'index_'+ doc['INDEX'].lower()
+                    del doc['INDEX']
+
+                    id_hash = hashlib.sha256(str(doc.items())).hexdigest()
+                    
+                    docs.append({
+                        "_index": index,
+                        "_type": '_doc',
+                        "_id": id_hash,
+                        "_source": doc
+                    })
             before = datetime.datetime.now()
             helpers.bulk(self.es, docs)
             after = datetime.datetime.now()
             print "Bulk Indexed %s docs in %s" % (len(docs), str(after - before))
 
-            # self.save(doc)
+            
         else:
+            doc = data
             id_hash = hashlib.sha256(str(doc.items())).hexdigest()
-            self.es.index(index=self.index_name, id=id_hash, doc_type='_doc', body=data)
+            self.es.index(index=self.index_name, id=id_hash, doc_type='_doc', body=doc)
 
     def create_index(self, index_name):
         created = False

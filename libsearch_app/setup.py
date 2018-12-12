@@ -17,7 +17,8 @@ setup(name='libsearch',
             'libarsc',
             'requests',
             'lxml',
-            'androgaurd',
-            'https://github.com/bit65/inspectelf'
+            'androguard',
+            'inspectelf'
       ],
+      dependency_links=['https://github.com/bit65/inspectelf/tarball/master#egg=inspectelf'],
       zip_safe=False)

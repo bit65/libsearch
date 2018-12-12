@@ -28,9 +28,19 @@ class TestProcessing(unittest.TestCase):
         results = Parser().get_parser(dir_path + "/samples/pango.apk")
         print len(results.parse()), "Modules Found"
 
+    def test_prop(self):
+        results = Parser().get_parser(dir_path + "/samples/build-data.properties")
+        print len(results.parse()), "Modules Found"
+
+    def test_version(self):
+        results = Parser().get_parser(dir_path + "/samples/android.arch.lifecycle_viewmodel.version")
+        print len(results.parse()), "Modules Found"
+
     def test_dex(self):
         results = Parser().get_parser(dir_path + "/samples/classes.dex")
         print len(results.parse()), "Modules Found"
+        # for i in results.parse():
+        #     print i
 
 
 

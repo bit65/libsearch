@@ -89,11 +89,11 @@ class ModuleMapper:
         self.searcher = IndexSearcher(DirectoryReader.open(directory))
     
     def search(self, module):
-        print "searching for module", module
+        # print "searching for module", module
         # Hack for mono modules
         module = re.sub('^mono.','',module)
 
-        testsearch = module.replace("/",'.') + ".stub"
+        testsearch = module.replace("/",'.')
         topDocs = self.searcher.search(WildcardQuery(Term("u", testsearch + "|*")), 10)
         # print testsearch
         

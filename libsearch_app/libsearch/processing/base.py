@@ -41,12 +41,13 @@ class ParserBase:
 
         return ret
     
-    def createData(self, dtype, **kwargs):
+    def createData(self, dindex, dtype, **kwargs):
         # print "%s - %s" % (dtype, dvalue)
 
         return merge_dicts(_uppercase_for_dict_keys(dict(kwargs)),
                             {
                                 "FILE": self.filename_w,
                                 "ASSET": self.parent,
-                                "TYPE": dtype
+                                "TYPE": dtype,
+                                "INDEX": dindex
                             })
