@@ -6,5 +6,5 @@ class XMLParser(ParserBase):
     ext = "xml"
 
     def _parse(self, file):
-        # print "Parse Generic XML"
+        # print "Parse Generic XML", file
         pass

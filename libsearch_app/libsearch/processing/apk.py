@@ -177,7 +177,7 @@ class APKParser(ParserBase):
                 attributes = self.extract_all_attributes(e)
                 information.append(self.createData("meta", "APK-USES-LIB" ,**attributes))
 
-            for tagtype in ['activity', 'reciever', 'service']:
+            for tagtype in ['activity', 'receiver', 'service']:
                 for e in app.findall(tagtype):
                     attributes = self.extract_all_attributes(e)
                     information.append(self.createData("meta", "APK-" + tagtype.upper() ,**attributes))

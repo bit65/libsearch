@@ -5,5 +5,5 @@ class JSONParser(ParserBase):
     ext = "json"
 
     def _parse(self, file_name):
-        # print "Handle json", self.filename
+        # print "Handle json", file_name
         return []
