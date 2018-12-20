@@ -2,6 +2,7 @@ import requests
 from lxml import html
 import os
 import code
+import shutil
 
 host = "https://apkpure.com"
 try:
@@ -22,8 +23,10 @@ def apk_downloader(link, s=None):
             # apk_class= tree.xpath('//@data-pkg')[0] + '.apk'
             download_link = tree.xpath('//iframe[@id=\'iframe_download\']')[0]
             
-            page = s.get(download_link.get('src'), allow_redirects=True)
-            open('./cache/%s' % apk_class, 'wb').write(page.content)
+            page = s.get(download_link.get('src'), allow_redirects=True, stream=True)
+            with open('./cache/%s' % apk_class, 'wb') as f:
+                shutil.copyfileobj(page.raw, f)
+                
             print "Downloaded %s" % apk_class
         except Exception as e:
             print "Failed downloading %s" % apk_class
