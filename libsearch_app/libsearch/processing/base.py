@@ -1,4 +1,5 @@
 import os
+from libsearch.storage.indexer import Indexer
 
 parsetype = ""
 ext = ""
@@ -21,7 +22,7 @@ class ParserBase:
         self.filename = filename
         self.filename_w = self.parent = filename.split(os.sep)[-1]
 
-    def parse(self, fileobj = None, parent=None):
+    def parse(self, fileobj = None, parent=None, save=False):
         # Choose one out of two paths:
         # 1. If no argument is given, open a file named self.filename
         # 2. If an argument is give, just pass it on.
@@ -38,6 +39,9 @@ class ParserBase:
 
         if close:
             fileobj.close()
+        
+        if save:
+            Indexer.instance().save(ret)
 
         return ret
     

@@ -2,10 +2,11 @@
 # encoding: utf-8
 
 
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, RequestsHttpConnection
 from elasticsearch import helpers
 import hashlib
 import datetime
+import os
 
 def xstr(s):
     if s is None:
@@ -17,7 +18,22 @@ class Indexer:
     _instance = None
 
     @staticmethod
-    def instance(options={'hosts': [{'host': 'localhost', 'port': 9200}]}):
+    def instance(options=None):
+        
+        if options == None:
+            host = os.getenv('ES_HOST', "localhost")
+            port = os.getenv('ES_PORT', 9200)
+            ssl = os.getenv('ssl', False)
+
+            if ssl == False:
+                options = {'hosts': [{'host': host, 'port': port}]}
+            else:
+                options = {'hosts': [{'host': host, 'port': port}],
+                            'use_ssl': True,
+                            'verift_certs': True,
+                            'connection_class': RequestsHttpConnection
+                            }
+    
         if Indexer._instance == None:
             Indexer._instance = Indexer(options=options)
 
@@ -28,36 +44,33 @@ class Indexer:
         self.index_name = index_name
         # self.create_index(index_name)
 
+    def _prepare_doc(self,doc):
+        index = self.index_name
+
+        if 'INDEX' in doc:
+            index = 'index_'+ doc['INDEX'].lower()
+            del doc['INDEX']            
+
+        id_hash = hashlib.sha256(str(doc.items())).hexdigest()
+
+        return {
+                    "_index": index,
+                    "_type": '_doc',
+                    "_id": id_hash,
+                    "_source": doc
+                }
+
     def save(self, data):
         if isinstance(data, list):
 
-            docs = []
-            for doc in data:
-                # self.save(doc)
-                # continue
-
-                if 'INDEX' in doc:
-                    index = 'index_'+ doc['INDEX'].lower()
-                    del doc['INDEX']
-
-                    id_hash = hashlib.sha256(str(doc.items())).hexdigest()
-                    
-                    docs.append({
-                        "_index": index,
-                        "_type": '_doc',
-                        "_id": id_hash,
-                        "_source": doc
-                    })
+            docs = [self._prepare_doc(doc) for doc in data]
+            
             before = datetime.datetime.now()
             helpers.bulk(self.es, docs)
             after = datetime.datetime.now()
             print "Bulk Indexed %s docs in %s" % (len(docs), str(after - before))
-
-            
         else:
-            doc = data
-            id_hash = hashlib.sha256(str(doc.items())).hexdigest()
-            self.es.index(index=self.index_name, id=id_hash, doc_type='_doc', body=doc)
+            self.save([data])
 
     def create_index(self, index_name):
         created = False
