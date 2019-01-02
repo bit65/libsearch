@@ -13,10 +13,11 @@ lib.getlib.argtypes = [GoString]
 lib.getlib.restype = GoString 
 
 def getClasses(classes):
-    msg = GoString(classes, len(classes))
-    d = lib.getlib(msg)
-    # for name, dtype in d._fields_:
-    #     print name, getattr(d, name)
-
-    modules = getattr(d, d._fields_[0][0]).split('\n')
+    modules = []
+    try:
+        msg = GoString(classes, len(classes))
+        d = lib.getlib(msg)
+        modules = getattr(d, d._fields_[0][0]).split('\n')
+    except e:
+        pass
     return modules

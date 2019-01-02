@@ -525,6 +525,12 @@ func getlib(dexfile string) *C.char {
 	var str strings.Builder
 	// var ret []*C.char
 
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered from error in dex parsing")
+		}
+	}()
+
 	d := new(dex)
 	data := d.new(dexfile)
 
