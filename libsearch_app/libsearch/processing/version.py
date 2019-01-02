@@ -6,4 +6,5 @@ class VersionParser(ParserBase):
 
     def _parse(self, f):
         version = f.read()
-        return [self.createData("meta","version", version=version)]
+
+        return [self.createData("main","META", META_VERSION=version, META_TYPE="VERSION")]

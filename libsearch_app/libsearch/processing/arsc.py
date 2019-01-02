@@ -11,7 +11,5 @@ class ARSCParser(ParserBase):
         
         file_data = file.read()
         arcObject = ARCP(file_data)
-
-        code.interact(local=locals())
         print "arsc", self.filename
         return []

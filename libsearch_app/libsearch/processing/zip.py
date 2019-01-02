@@ -12,6 +12,7 @@ class ZIPParser(ParserBase):
 
     def _parse(self, f):
         print "Parsing ZIP"
+        return []
         information = []
 
         zipfile = ZipFile(f)

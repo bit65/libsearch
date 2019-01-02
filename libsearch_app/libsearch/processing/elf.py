@@ -32,7 +32,7 @@ class ELFParser(ParserBase):
             e = ELFFile(open(tmpname, "rb"))
 
             # Add arch
-            information.append(self.createData("ELF-ARCH", e.header.e_machine[3:]))
+            information.append(self.createData("main", "ELF", ELF_ARCH=e.header.e_machine[3:]))
 
             for s in e.iter_sections():
                 if s['sh_type'] == 'SHT_STRTAB':
@@ -40,14 +40,14 @@ class ELFParser(ParserBase):
                         if x != "":
                             # Get Symbols
                             try:
-                                information.append(self.createData("functions","ELF-FUNCTIONS", demangled=demangle(x), mangled=x))
+                                information.append(self.createData("main","ELF", ELF_FUNCTION=demangle(x)))
                             except:
-                                information.append(self.createData("functions","ELF-FUNCTIONS", mangled=x))
+                                information.append(self.createData("main","ELF", ELF_FUNCTION=x))
 
         flags = inspectelf.inspect(tmpname, recursive = False, cfg = True, force = True)
 
         if flags is not None:
-            information.append(self.createData("permissions","ELF-FLAGS", **flags[tmpname]))
+            information.append(self.createData("main","ELF", **{'ELF_'+k.upper(): v for k, v in flags[tmpname].items()}))
         
         os.unlink(tmpname)
         return information

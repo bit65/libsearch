@@ -2,7 +2,9 @@ from libsearch.processing.base import ParserBase
 from libsearch.enrichment.module_mapper import ModuleMapper
 # import pydexinfo
 from androguard.core.bytecodes import dvm
+import godex
 from itertools import groupby
+from tempfile import NamedTemporaryFile
 import subprocess
 import re
 import os
@@ -42,12 +44,15 @@ class DEXParser(ParserBase):
     ext = "dex"
 
     def readFromDEX(self, f):
-        d = dvm.DalvikVMFormat(f.read())
-        # import code
-        # code.interact(local=locals())
+        tmpname = ""
+        modules = []
+        with NamedTemporaryFile() as tmp:
+            tmp.write(f.read())
+            modules = godex.getClasses(tmp.name)
+
         return {
-                 "classes": [c.get_name().replace('/','.')[1:] for c in d.get_classes()],
-                 "strings": filter(whitelist_strings, d.get_strings())
+                 "classes": modules,
+                 "strings": []
         }
         
     def _parse(self, f):
@@ -56,11 +61,13 @@ class DEXParser(ParserBase):
         dex_file = self.readFromDEX(f)
 
         for s in dex_file["strings"]:
-            information.append(self.createData("strings","APK-STRINGS", resource=s))
+            information.append(self.createData("main","STRING", STRING_DATA=s))
 
         for module,classes_iter in groupby(dex_file["classes"],lambda f: ".".join(f.split('.')[:-1])):
-            lib = ModuleMapper.instance().search(module)
-            information.append(self.createData("modules","APK-LIBRARY", module=module, classes=list(classes_iter), library=lib))
+
+            information.append(self.createData("main", "MODULE", MODULE_NAME=module))
+            libs = ModuleMapper.instance().search(module)
+            information.append(self.createData("main","LIBRARY", LIBRARY_NAMES=libs))
 
         
         print "DONE DEX"
