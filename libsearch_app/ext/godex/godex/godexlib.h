@@ -65,7 +65,7 @@ extern "C" {
 #endif
 
 
-extern char* getlib(GoString p0);
+extern char* GetLib(GoString p0);
 
 #ifdef __cplusplus
 }

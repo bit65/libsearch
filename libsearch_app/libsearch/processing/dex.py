@@ -46,9 +46,11 @@ class DEXParser(ParserBase):
     def readFromDEX(self, f):
         tmpname = ""
         modules = []
-        with NamedTemporaryFile() as tmp:
+        with NamedTemporaryFile(delete=False) as tmp:
             tmp.write(f.read())
-            modules = godex.getClasses(tmp.name)
+        
+        modules = godex.getClasses(tmp.name)
+        os.unlink(tmp.name)
 
         return {
                  "classes": modules,

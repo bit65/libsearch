@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -512,15 +513,17 @@ func (d *dex) parse() []string {
 
 func main() {
 	d := new(dex)
-	values := d.new("classes.dex")
+
+	// fmt.Println("Parsing", os.Args)
+	values := d.new(os.Args[1])
 
 	for _, v := range values {
 		fmt.Println(v)
 	}
 }
 
-//export getlib
-func getlib(dexfile string) *C.char {
+//export GetLib
+func GetLib(dexfile string) *C.char {
 
 	var str strings.Builder
 	// var ret []*C.char
@@ -539,6 +542,7 @@ func getlib(dexfile string) *C.char {
 		str.WriteString(data[i])
 		str.WriteString("\n")
 	}
+
 	return C.CString(str.String())
 
 }

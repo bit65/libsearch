@@ -17,6 +17,8 @@ def merge_dicts(x, y):
     z.update(y)    # modifies z with y's keys and values & returns None
     return z
 
+
+
 class APKParser(ParserBase):
     parsetype = "application/zip"
     ext = "apk"
@@ -59,6 +61,8 @@ class APKParser(ParserBase):
 
         information = []
         zipfile = ZipFile(f)
+        # print zipfile.namelist()
+        # exit(0)
 
         skip_android_assets = False
 
@@ -72,6 +76,7 @@ class APKParser(ParserBase):
             information += self.parse_manifest(manifest_file, resources_file)
             skip_android_assets = True
 
+        # print information
         for x in zipfile.infolist():
             # Add File to index
             if skip_android_assets and (x.filename == 'AndroidManifest.xml' or x.filename == 'resources.arsc'):
@@ -79,22 +84,25 @@ class APKParser(ParserBase):
 
             information.append(self.createData("main", "FILE", FILE_NAME=x.filename, FILE_CHECKSUM=x.CRC))
 
-            # Process File
-            parser = P.instance().get_parser(x.filename)
+            # Get only dex and so files for now -- TODO remove this after caching
+            if x.filename.endswith('.dex') or x.filename.endswith('.so'):
+                print "Parsing %s" % x.filename
+                # Process File
+                parser = P.instance().get_parser(x.filename)
 
-            if parser is None:
-                continue
+                if parser is None:
+                    continue
 
-            try:
-                results = parser.parse(zipfile.open(x.filename), parent=self.filename_w)
+                try:
+                    results = parser.parse(zipfile.open(x.filename), parent=self.filename_w)
 
-                if results is not None:
-                    information += results
+                    if results is not None:
+                        information += results
 
-            except Exception as e:
-                print "Cannot process %s" % x.filename
-                import traceback
-                print(traceback.format_exc())
+                except Exception as e:
+                    print "Cannot process %s" % x.filename
+                    import traceback
+                    print(traceback.format_exc())
 
         return information
 

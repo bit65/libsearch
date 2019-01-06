@@ -23,7 +23,7 @@ class Indexer:
         if options == None:
             host = os.getenv('ES_HOST', "localhost")
             port = os.getenv('ES_PORT', 9200)
-            ssl = os.getenv('ssl', False)
+            ssl = os.getenv('SSL', False)
 
             if ssl == False:
                 options = {'hosts': [{'host': host, 'port': port}]}

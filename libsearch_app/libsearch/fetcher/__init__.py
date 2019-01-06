@@ -5,8 +5,9 @@ import shutil
 from libsearch.storage.indexer import Indexer
 from libsearch.processing.base import ParserBase
 from libsearch.processing.searchparser import Parser
+import zipfile
 
-host = "https://apkpure.com"
+
 try:
     os.mkdir('./cache')
 except:
@@ -17,7 +18,8 @@ except:
     pass
 
 # parser = etree.XMLParser(recover=True)
-def apk_downloader(link, s=None):
+def apk_downloader(link, s=None, download=True):
+    host = "https://apkpure.com"
 
     apk_data = {}
     if s is None:
@@ -29,33 +31,39 @@ def apk_downloader(link, s=None):
 
     if not os.path.isfile("./cache/%s" % apk_class):
         try:
-
-            
-            page = s.get('%s%s' % (host, link))
+            page = s.get('%s%s' % (host, link), verify=False)
             tree = html.fromstring(page.content)            
 
             # Get image data
-            img_link = tree.xpath('//div[@class=\'icon\']/img[1]')[0]
-            page = s.get(img_link.get('src'), allow_redirects=True, stream=True)
-            with open('./res/%s' % apk_class + '.png', 'wb') as f:
-                shutil.copyfileobj(page.raw, f)
+            # img_link = tree.xpath('//div[@class=\'icon\']/img[1]')[0]
+            # page = s.get(img_link.get('src'), allow_redirects=True, stream=True, verify=False)
+            # with open('./res/%s' % apk_class + '.png', 'wb') as f:
+            #     shutil.copyfileobj(page.raw, f)
             
-            base = ParserBase(apk_class + '.apk')
+            # base = ParserBase(apk_class + '.apk')
 
             # Get APK data
-            apk_data['name'] = tree.xpath('//div[@class=\'title-like\']/h1[1]')[0].text
-            apk_data['version'] = tree.xpath('//div[@class=\'details-sdk\']/span[1]')[0].text
-            apk_data['tags'] = [t.text for t in  tree.xpath('//ul[@class=\'tag_list\']/li/a[1]')]
-            apk_data['categories'] = [c.text for c in  tree.xpath('//p[2]/a[1]/span')]
+            # apk_data['name'] = tree.xpath('//div[@class=\'title-like\']/h1[1]')[0].text
+            # apk_data['version'] = tree.xpath('//div[@class=\'details-sdk\']/span[1]')[0].text
+            # apk_data['tags'] = [t.text for t in  tree.xpath('//ul[@class=\'tag_list\']/li/a[1]')]
+            # apk_data['categories'] = [c.text for c in  tree.xpath('//p[2]/a[1]/span')]
 
-            Indexer.instance().save(base.createData("meta","apkinfo", **apk_data))
+            # Indexer.instance().save(base.createData("meta","apkinfo", **apk_data))
 
 
             # Get Download
-            page = s.get('%s%s/download?from=details' % (host, link))
+            print "* downloading %s" % apk_class
+            page = s.get('%s%s/download?from=details' % (host, link), verify=False)
             tree = html.fromstring(page.content)            
             download_link = tree.xpath('//iframe[@id=\'iframe_download\']')[0]
-            page = s.get(download_link.get('src'), allow_redirects=True, stream=True)
+
+            if download == False:
+                return download_link.get('src')
+            # fpin = NetZip(download_link.get('src'))
+            # print zipfile._EndRecData(fpin)
+            # exit(0)
+
+            # if length < 80000000:
             with open('./cache/%s.apk' % apk_class, 'wb') as f:
                 shutil.copyfileobj(page.raw, f)
             
@@ -63,7 +71,7 @@ def apk_downloader(link, s=None):
             # if parser != None:
             # 	parser.parse(save=True)
 
-            print "Downloaded %s" % apk_class
+            
         except Exception as e:
             print "Failed downloading %s" % apk_class
             import traceback

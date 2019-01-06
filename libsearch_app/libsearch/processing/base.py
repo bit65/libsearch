@@ -1,5 +1,7 @@
 import os
 from libsearch.storage.indexer import Indexer
+import requests
+from io import BytesIO
 
 parsetype = ""
 ext = ""
@@ -17,6 +19,45 @@ def merge_dicts(x, y):
     z.update(y)    # modifies z with y's keys and values & returns None
     return z
 
+class NetFile():
+    def __init__(self, url):
+        self.url = url
+        self.pos = 0
+        headers = {"Range": "bytes=0-2"}
+        page = requests.get(self.url, allow_redirects=True, headers=headers)
+        self.url = page.url
+        self.size = int(page.headers['Content-Range'].split('/')[1])
+        
+    def seek(self, cookie, whence):
+        if whence == 0:
+            self.pos = cookie
+        if whence == 1:
+            self.pos = self.pos + cookie
+        if whence == 2:
+            self.pos = self.size + cookie
+
+        # print "new pos", self.pos
+
+    def tell(self):
+        # print "tell pos", self.pos
+        return self.pos
+
+    def read(self, n=None):
+        
+        newpos = 0
+        if n is None:
+            newpos = self.size
+            headers = {"Range": "bytes=%d-" % (self.pos)}
+        else:
+            newpos = self.pos+n
+            headers = {"Range": "bytes=%d-%d" % (self.pos, newpos-1)}
+
+        r = requests.get( self.url, allow_redirects=True, headers=headers)
+        
+        self.pos = newpos
+
+        return BytesIO(r.content).read()
+
 class ParserBase:
     def __init__(self, filename):
         self.filename = filename
@@ -30,6 +71,9 @@ class ParserBase:
             self.parent = parent
 
         close = False
+
+        if type(fileobj) is str and (fileobj.startswith('https://') or fileobj.startswith('http://')):
+            fileobj = NetFile(fileobj)
 
         if fileobj is None:
             fileobj = open(self.filename, "rb")

@@ -8,7 +8,7 @@ import traceback
 
 import datetime
 
-dir_path = os.path.dirname(os.path.realpath(__file__)) + "/../../cache"
+dir_path = os.path.dirname(os.path.realpath(__file__)) + "/../cache"
 
 files = os.listdir(dir_path)
 for f in files:
