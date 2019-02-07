@@ -8,67 +8,92 @@ import re
 
 from java.nio.file import Paths
 
-from org.apache.lucene.index import DirectoryReader
-from org.apache.lucene.index import Term
-from org.apache.lucene.search import IndexSearcher
-from org.apache.lucene.store import SimpleFSDirectory
-from org.apache.lucene.queryparser.classic import QueryParser
-from org.apache.lucene.search import RegexpQuery
-from org.apache.lucene.search import WildcardQuery
-from org.apache.lucene.analysis.standard import StandardAnalyzer, StandardTokenizer
+import requests
+import requests_cache
+# requests_cache.install_cache('mapper_cache', expire_after=60*60*24*30, allowable_codes=(200,404))
 
-asset_blacklist = ["io", "com", "org", "net", "java"]
+from lxml import etree
+from lxml import html
 
-asset_whitelist = {
-    "okhttp3": "OK HTTP-LIB",
-    "bolts": "Bolts?",
-    "javax.swing": "Swing Library",
-    "me.dm7": "ME DM7",
-    "retrofit2": "Retrofit",
-    "retrofit": "Retrofit",
-    "com.anagog": "Anagog SDK",
-    "anagog.pd": "Anagog SDK",
-    "com.unicell.pangoandroid": "Pango Android",
-    "com.neura": "Neura SDK",
-    "com.google.ads": "Google Ads",
-    "dagger": "Dagger?",
-    "io.fabric": "io.fabric",
-    "com.bumptech": "Bumptech?",
-    "com.skyfishjy": "SkyFish?",
-    "com.waze": "Waze?",
-    "com.tjerkw": "tjerkw?",
-    "com.crashlytics": "Crashlytics",
-    "com.google.gson": "Google GSON",
-    "com.google.android.gms": "Google GMS",
-    "com.google.android.material": "Google Material",
-    "com.google.analytics": "Google Analytics",
-    "android": "Android Libraries",
-    "androidx": "Android Libraries",
-    "java": "Java Libraries",
-    "javax": "Java Libraries",
-    "org.apache.log4j": "LOG4J",
-    "okio": "OKIO",
-    "com.google.android.finsky": "FINSKY?",
-    "com.zopim.android.sdk": "Zendesk chat SDK",
-    "com.lemurmonitors.bluedriver": "Lemur Monitors BlueDriver",
-    "com.carly": "Carly OBD2",
-    "com.iViNi": "iVini",
-    "iViNi": "iVini",
-    "dalvik": "Dalvik",
-    "zendesk": "Zendesk",
-    "com.google": "Google Library",
-    "org.apache.http": "Apache HTTP",
-    "ru.car2.dacarpro": "Dacar Pro",
-    "kotlin": "Kotlin JVM",
-    "mureung.obdproject": "Mureung OBD Project",
-    "com.outilsobdfacile.obd": "OUTILS OBD FACILE",
-    "com.michele.administrator.obdkontrol": "Michele OBD Kontrol",
-    "com.obdeleven": "OBD ELEVEN",
-    "com.voltasit.obdeleven": "OBD ELEVEN",
-    "com.company.ahmetunal.VehicleSensorMonitor": "Ahmetunal VehicleSensorMonitor",
-    "com.kakao": "Kakao"
+from collections import defaultdict
+
+
+# 'latest_version' = 'r7'
+# 'src' = path
+# 'module' = module
+mappings = {
+    "android.support.v4": 
+    {
+        'name': 'Android Support V4',
+        'description': 'Android Support V4',
+        'groupId': 'com.google.android',
+        'artifactId': 'support-v4'
+    },
+    "android.support.v7": 
+    {
+        'name': 'Android Support V7',
+        'description': 'Android Support V7',
+        'groupId': 'com.google.android',
+        'artifactId': 'support-v7'
+    },
+    "android.support.v13": 
+    {
+        'name': 'Android Support V13',
+        'description': 'Android Support V13',
+        'groupId': 'com.google.android',
+        'artifactId': 'support-v13'
+    },
+    "io.fabric.sdk.android": 
+     {
+        'name': 'Android SDK Fabric',
+        'description': 'Android SDK Fabric ',
+        'groupId': 'io.fabric.sdk.android',
+        'artifactId': 'fabric'
+    },
+    "zendesk":
+    {
+        'name': 'Zendesk',
+        'description': 'Zendesk Support',
+        'groupId': 'com.zendesk',
+        'artifactId': 'zendesk'
+    },
+    "com.google.android.gms": 
+    {
+        'name': 'Google Play Services',
+        'description': 'Google Play Services',
+        'groupId': 'com.google.android.gms',
+        'artifactId': 'play-services'
+    },
+    # "android.support": None,
+    # "android.":None,
+    # "androidx.": None
 }
 
+translation = {
+    "com.google.zxing": "com.google.zxing.core",
+    "org.apache": "org.apache.apache",
+    "okhttp3": "com.squareup.okhttp3.okhttp",
+    "com.squareup.okhttp": "com.squareup.okhttp3.okhttp",
+    "com.bumptech.glide": "com.github.bumptech.glide.glide",
+    "com.google.firebase": "com.google.firebase.firebase-server-sdk",
+    "com.google.gson": "com.google.code.gson.gson",
+    "com.google.ads": "com.google.api-ads.google-ads",
+    "retrofit2": "com.squareup.retrofit2.retrofit",
+    "com.crashlytics.android": "com.crashlytics.sdk.android.crashlytics",
+    "com.facebook": "com.facebook.android.facebook-core",
+    "org.jsoup": "org.jsoup.jsoup",
+    "org.bouncycastle": "org.bouncycastle.bcpg-jdk16",
+    "com.shaded.fasterxml":"com.fasterxml.jackson.jackson-base",
+    "com.nostra13.universalimageloader":"com.nostra13.universalimageloader.universal-image-loader",
+    "org.springframework": "org.springframework.integration.spring-integration-core",
+    # "com.google.a":None,
+
+    
+}
+
+class Hashabledict(dict):
+    def __hash__(self):
+        return hash(frozenset(self))
 
 class ModuleMapper:
     _instance = None
@@ -81,37 +106,141 @@ class ModuleMapper:
         return ModuleMapper._instance
 
     def __init__(self):
-        lucene.initVM()
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-
-        INDEX_DIR = "../../central-lucene-index"
-        directory = SimpleFSDirectory(Paths.get(os.path.join(base_dir, INDEX_DIR)))
-        self.searcher = IndexSearcher(DirectoryReader.open(directory))
+        self.cache = requests_cache.core.CachedSession('mapper_cache', expire_after=60*60*24*30, allowable_codes=(200,404))
+        pass 
     
-    def search(self, module):
-        # print "searching for module", module
-        # Hack for mono modules
-        module = re.sub('^mono.','',module)
+    def map_modules(self, libs, modules):
 
-        testsearch = module.replace("/",'.')
-        topDocs = self.searcher.search(WildcardQuery(Term("u", testsearch + "|*")), 10)
-        # print testsearch
+        for m in modules:
+            orig_module = m
+
+            for k,v in translation.iteritems():
+               
+                if m.startswith(k):
+                    if v is not None:
+                        m = v                    
+            
+            for k,v in mappings.iteritems():
+                if m.startswith(k):
+                    if v is not None:
+                        lib = dict(v)
+                        lib['actual_module'] = orig_module
+                        lib['module'] = k
+
+                        libs.append(Hashabledict(lib))
+        return
+
+    def search_all(self, modules):
+        all_libs = []
+        # cache = set()
+        tree = {}
+
+        # libs = []
+        self.map_modules(all_libs, modules)
         
-        while topDocs.totalHits == 0:
-            
-            splitted_arr = testsearch.split(".")
-            if len(splitted_arr) < 2:
-                break
-            testsearch = ".".join(splitted_arr[:-1])
-            
-            if testsearch in asset_whitelist:
-                return [asset_whitelist[testsearch]]
+        for m in modules:
+            m = m.replace('/', '.').split('.')
+            t = tree    
+            for part in m:
+                t = t.setdefault(part, {})
+    
+        
+        # ,"http://central.maven.org/maven2/%s",
+        # bases = ["http://central.maven.org/maven2/%s","http://jcenter.bintray.com/%s", "https://oss.sonatype.org/content/repositories/releases/%s"]
 
-            if testsearch in asset_blacklist:
-                break
-            
-            topDocs = self.searcher.search(WildcardQuery(Term("u", testsearch + "|*")), 10)
+        bases = [
+            "https://oss.sonatype.org/content/repositories/releases/%s", 
+            "http://repo1.maven.org/maven2/%s",
+            "http://central.maven.org/maven2/%s",
+            "http://repository.ops4j.org/maven2/%s"
+            ]
+        
+        for base in bases:
+            t_libs = self.parseTree(base, tree, [])
+            if len(t_libs) > 0:
+                all_libs += t_libs
 
-        scoreDocs = topDocs.scoreDocs
-        libs = list(set([self.searcher.doc(scoreDoc.doc)["n"] for scoreDoc in scoreDocs]))
+        return all_libs
+
+    def parseTree(self, base, tree, libs, path="", orig_path=""):
+
+        moduleId = path.replace('/','.').strip('.')
+        origId = moduleId
+
+        files = self.get_online_dirlist(base, path)
+
+        if files:
+            if "maven-metadata.xml" in files:
+                
+                if orig_path != "":
+                    origId = moduleId
+                    moduleId = orig_path.replace('/','.').strip('.')
+
+                lib = self.parse_maven(base % path.lstrip('/'), moduleId, origId)
+                if lib:
+                    libs.append(lib)
+
+            # Hack to get same parent artificat
+            if path.split('/')[-1] in files:
+                self.parseTree(base, tree, libs, "%s/%s" % (path, path.split('/')[-1]), path)
+
+            for k, v in tree.iteritems():
+                if k in files:
+                    self.parseTree(base, v, libs, "%s/%s" % (path, k))
+                                        
         return libs
+
+    def get_online_dirlist(self, base, path):
+
+        r = self.cache.get(base % path.lstrip('/'))
+        if r.status_code == 200:
+            tree = html.fromstring(r.content)
+            return [f.rstrip('/') for f in tree.xpath('//a/text()')]
+        
+    def parse_maven(self, path, module, orig_module):
+
+        try:
+            r = self.cache.get(path + "/maven-metadata.xml")
+            
+            if r.status_code == 200:
+
+                tree = html.fromstring(r.content)
+                
+                groupId = tree.xpath('//groupid/text()')
+                artifactId = tree.xpath('//artifactid/text()')
+                # import code
+                # code.interact(local=locals())
+                if len(groupId) != 0 and len(artifactId) != 0:
+                    groupId = groupId[0]
+                    artifactId = artifactId[0]
+
+                    latest_version = tree.xpath('//versioning/latest/text()')
+                    all_versions = tree.xpath('//versions/version/text()')
+
+                    if len(latest_version) != 0:
+                        latest_version = latest_version[0]
+                        r = self.cache.get(path + "/" + latest_version + "/")
+                            
+                        if r.status_code == 200:
+                            tree = html.fromstring(r.content)
+                            for f in tree.xpath('//a/text()'):
+                                # print f
+                                if f.endswith(".pom"):
+                                    r = self.cache.get(path + "/"+latest_version+"/"+f)
+                                    if r.status_code == 200:
+                                        tree = html.fromstring(r.content)
+
+                                        lib = {}
+                                        lib['name'] = tree.xpath('//project/name/text()')[0]
+                                        lib['description'] = tree.xpath('//project/name/text()')[0]
+                                        lib['latest_version'] = latest_version
+                                        lib['groupId'] = groupId
+                                        lib['artifactId'] = artifactId
+                                        # lib['src'] = path
+                                        lib['actual_module'] = module
+                                        lib['module'] = orig_module
+
+                                        return lib
+        except Exception as e:
+            print "error", e
+        return None

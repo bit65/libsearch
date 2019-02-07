@@ -5,7 +5,7 @@ class PROPParser(ParserBase):
     parsetype = "text/plain"
     ext = "properties"
 
-    def _parse(self, f):
+    def _parse(self, f, options={}):
         information = []
         return []
         

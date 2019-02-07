@@ -10,7 +10,7 @@ class ZIPParser(ParserBase):
     parsetype = "application/zip"
     ext = "zip"
 
-    def _parse(self, f):
+    def _parse(self, f, options={}):
         print "Parsing ZIP"
         return []
         information = []

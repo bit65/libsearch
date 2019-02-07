@@ -1,5 +1,6 @@
 from libsearch.processing.base import ParserBase
 from libsearch.enrichment.module_mapper import ModuleMapper
+# from libsearch.enrichment.version_mapper import VersionMapper
 # import pydexinfo
 from androguard.core.bytecodes import dvm
 import godex
@@ -57,20 +58,39 @@ class DEXParser(ParserBase):
                  "strings": []
         }
         
-    def _parse(self, f):
+    def _parse(self, f, options={}):
         print "PARSING DEX"
         information = []
         dex_file = self.readFromDEX(f)
 
         for s in dex_file["strings"]:
             information.append(self.createData("main","STRING", STRING_DATA=s))
-
-        for module,classes_iter in groupby(dex_file["classes"],lambda f: ".".join(f.split('.')[:-1])):
-
-            information.append(self.createData("main", "MODULE", MODULE_NAME=module))
-            libs = ModuleMapper.instance().search(module)
-            information.append(self.createData("main","LIBRARY", LIBRARY_NAMES=libs))
-
         
+        libs = ModuleMapper.instance().search_all(dex_file["classes"])
+        
+        for l in libs:
+            l["full_artifact"] = "%s.%s" % (l["groupId"],l["artifactId"])
+
+            lib_dict = {'INDEX_LIBRARY_'+k.upper(): v for k, v in l.items() if "module" not in k}
+            lib_dict["TYPE"] = "INDEX_LIBRARY"
+            information.append(lib_dict)
+            
+            information.append(self.createData("main", "LIBRARY", **{'LIBRARY_'+k.upper(): v for k, v in l.items()}))
+            # VersionMapper.instance().learn(l["full_artifact"])
+
+            # l["min_ver"] , l["max_ver"]  = VersionMapper.instance().search(l["full_artifact"], dex_file["classes"])
+            
+            # l["min_ver"] = "V" + str(l["min_ver"])
+            # l["max_ver"] = "V" + str(l["max_ver"])
+
+            
+        
+        modules = list(set(['.'.join(c.replace('/','.').split('.')[:-1]) for c in dex_file["classes"]]))
+        for m in modules:
+            information.append(self.createData("main", "MODULE", MODULE_NAME=m))
+            # print "*" + m
+
         print "DONE DEX"
+        # import pprint
+        # pprint.pprint(information)
         return information

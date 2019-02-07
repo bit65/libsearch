@@ -7,6 +7,7 @@ from elasticsearch import helpers
 import hashlib
 import datetime
 import os
+from collections import defaultdict
 
 def xstr(s):
     if s is None:
@@ -39,7 +40,7 @@ class Indexer:
 
         return Indexer._instance
 
-    def __init__(self, options, index_name='libsearch_docs'):
+    def __init__(self, options, index_name='index_main'):
         self.es = Elasticsearch(**options)
         self.index_name = index_name
         # self.create_index(index_name)
@@ -92,3 +93,26 @@ class Indexer:
             print(str(ex))
         finally:
             return created
+
+    def search(self, body):
+        res = self.es.search(index=self.index_name, body=body)
+        return [hit["_source"] for hit in res['hits']['hits']]
+
+    def search_agg(self, body, agg1="",agg2=""):
+        res = self.es.search(index=self.index_name, body=body)
+        
+        agg1_results = defaultdict(list)
+
+
+        for k,v in res["aggregations"].iteritems():
+            for b in v['buckets']:
+                if agg2 in b:
+                    for b2 in b[agg2]["buckets"]:
+                        agg1_results[b["key"]].append(b2["key"])
+            
+
+        return agg1_results
+        # for i in :
+        #     print i
+        # return [hit["_source"] for hit in res['hits']['hits']]
+

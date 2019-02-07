@@ -18,7 +18,7 @@ class ELFParser(ParserBase):
     parsetype = ['application/x-executable', 'application/x-sharedlib']
     ext = "so"
 
-    def _parse(self, f):
+    def _parse(self, f, options={}):
         global db
         print "ELF Parsing"
         information = []

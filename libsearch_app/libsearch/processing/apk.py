@@ -56,7 +56,7 @@ class APKParser(ParserBase):
         return ret_attr
 
 
-    def _parse(self, f):
+    def _parse(self, f, options={}):
         print "Parsing APK"
 
         information = []
@@ -85,7 +85,8 @@ class APKParser(ParserBase):
             information.append(self.createData("main", "FILE", FILE_NAME=x.filename, FILE_CHECKSUM=x.CRC))
 
             # Get only dex and so files for now -- TODO remove this after caching
-            if x.filename.endswith('.dex') or x.filename.endswith('.so'):
+            if x.filename.endswith('.dex'):
+            # or x.filename.endswith('.so'):
                 print "Parsing %s" % x.filename
                 # Process File
                 parser = P.instance().get_parser(x.filename)
@@ -156,13 +157,13 @@ class APKParser(ParserBase):
         
         # Get Permissions
         for e in root.findall('uses-permission'):
-            attributes = self.extract_all_attributes(e, func=permissions_func, override=True)
+            attributes = self.extract_all_attributes(e)
             information.append(self.createData("main", "PERMISSION", **{'PERMISSION_'+k.upper(): v for k, v in attributes.items()}))
 
         
         
         for e in root.findall('uses-permission-sdk-23'):
-            attributes = self.extract_all_attributes(e, func=permissions_func, override=True)
+            attributes = self.extract_all_attributes(e)
             information.append(self.createData("main", "PERMISSION", **{'PERMISSION_'+k.upper(): v for k, v in attributes.items()}))
         
 

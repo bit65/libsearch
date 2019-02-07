@@ -24,7 +24,7 @@ class NetFile():
         self.url = url
         self.pos = 0
         headers = {"Range": "bytes=0-2"}
-        page = requests.get(self.url, allow_redirects=True, headers=headers)
+        page = requests.get(self.url, allow_redirects=True, headers=headers, verify=False)
         self.url = page.url
         self.size = int(page.headers['Content-Range'].split('/')[1])
         
@@ -52,7 +52,7 @@ class NetFile():
             newpos = self.pos+n
             headers = {"Range": "bytes=%d-%d" % (self.pos, newpos-1)}
 
-        r = requests.get( self.url, allow_redirects=True, headers=headers)
+        r = requests.get( self.url, allow_redirects=True, headers=headers, verify=False)
         
         self.pos = newpos
 
@@ -63,7 +63,7 @@ class ParserBase:
         self.filename = filename
         self.filename_w = self.parent = filename.split(os.sep)[-1]
 
-    def parse(self, fileobj = None, parent=None, save=False):
+    def parse(self, fileobj = None, parent=None, save=False, options={}):
         # Choose one out of two paths:
         # 1. If no argument is given, open a file named self.filename
         # 2. If an argument is give, just pass it on.
@@ -79,7 +79,7 @@ class ParserBase:
             fileobj = open(self.filename, "rb")
             close = True
 
-        ret = self._parse(fileobj)
+        ret = self._parse(fileobj, options={})
 
         if close:
             fileobj.close()
